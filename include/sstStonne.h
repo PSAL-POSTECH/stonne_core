@@ -2,39 +2,23 @@
 #define _SST_STONNE_H
 
 //sst_stonne.h
-#include "include/STONNEModel.h"
-#include "include/types.h"
-#include "include/MemInterface.h"
+#include "STONNEModel.h"
+#include "types.h"
+#include "SimpleMem.h"
 
 #include "lsQueue.h"
 
 
 namespace SST_STONNE {
-class sstStonne {
+class StonneOpDesc {
 public:
-    sstStonne();
-    sstStonne();
-    ~sstStonne();
-
-    // Override SST::Component Virtual Methods
-    void setup();
-    void finish();
-    void init( uint32_t phase );
-    void handleEvent( SimpleMem::Request* ev );
-    //void Status();
-    bool cycle();
-
-private:
-    //SST Variables
-    SimpleMem*  mem_interface_;
-    Stonne* stonne_instance;
-    Layer_t kernelOperation;
-
     //Input parameters
     /***************************************************************************/
     /*Convolution parameters (See MAERI paper to find out the taxonomy meaning)*/
     /***************************************************************************/
+    Layer_t operation;
     std::string layer_name;
+    std::string mem_init;
     unsigned int R;                                  // R
     unsigned int S;                                  // S
     unsigned int C;                                  // C
@@ -47,10 +31,6 @@ private:
     unsigned int Y_;                                 // Y_
     unsigned int strides;                            // Strides
 
-    unsigned int matrixA_size;
-    unsigned int matrixB_size;
-    unsigned int matrixC_size;
-
     //Convolution Tile parameters (See MAERI paper to find out the taxonomy meaning)
     unsigned int T_R;                                // T_R
     unsigned int T_S;                                // T_S
@@ -60,7 +40,6 @@ private:
     unsigned int T_N;                                // T_N
     unsigned int T_X_;                               // T_X
     unsigned int T_Y_;                               // T_Y   
-
 
     /******************************************************************************/
     /*  GEMM Parameters */
@@ -75,10 +54,50 @@ private:
     unsigned int GEMM_T_N;
     unsigned int GEMM_T_M;
 
+    uint64_t matrix_a_dram_address;
+    uint64_t matrix_b_dram_address;
+    uint64_t matrix_c_dram_address;
+    std::string mem_matrix_c_file_name = "";
+    std::string bitmap_matrix_a_init = "";
+    std::string bitmap_matrix_b_init = "";
+    std::string rowpointer_matrix_a_init = "";
+    std::string colpointer_matrix_a_init = "";
+    std::string rowpointer_matrix_b_init = "";
+    std::string colpointer_matrix_b_init = "";
+};
+
+class sstStonne {
+public:
+    sstStonne(std::string config_file, std::string mem_file);
+    sstStonne(std::string config_file);
+    ~sstStonne();
+
+    // Override SST::Component Virtual Methods
+    void setup(StonneOpDesc opDesc);
+    void finish();
+    bool isFinished() { return stonne_instance->isExecutionFinished(); }
+    void init( uint32_t phase );
+    void handleEvent( SimpleMem::Request* ev );
+    //void Status();
+    void cycle();
+    void printStats() { stonne_instance->printStats(); }
+    void printEnergy() { stonne_instance->printEnergy(); }
+    LSQueue* loadQueue() { return load_queue_; }
+    LSQueue* writeQueue() { return write_queue_; }
+private:
+    //SST Variables
+    SimpleMem*  mem_interface_;
+    Stonne* stonne_instance;
+
+    unsigned int matrixA_size;
+    unsigned int matrixB_size;
+    unsigned int matrixC_size;
+
     /**************************************************************************/
     /* Hardware parameters */
     /**************************************************************************/
     Config stonne_cfg; 
+    StonneOpDesc opDesc;
     std::string memFileName;
     uint64_t dram_matrixA_address;
     uint64_t dram_matrixB_address;

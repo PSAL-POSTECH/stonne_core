@@ -10,6 +10,9 @@
 Config::Config() {
     this->reset();
 }
+Config::Config(std::string config_file) {
+    loadFile(config_file);
+}
 
 void Config::loadFile(std::string config_file) {
     auto config = cpptoml::parse_file(config_file);
@@ -174,9 +177,6 @@ void Config::loadFile(std::string config_file) {
     if(memory_controller_type_conf) {
         this->m_SDMemoryCfg.mem_controller_type = get_type_memory_controller_type(*memory_controller_type_conf);
     }
-
-
-   
 }
 
 void Config::reset() {

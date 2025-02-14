@@ -40,6 +40,8 @@ public:
         SimpleMem::Request* req = new SimpleMem::Request(SimpleMem::Request::Read, addr, this->data_width);
         SST_STONNE::LSEntry* tempEntry = new SST_STONNE::LSEntry( req->id, data_package, 0 );
         load_queue_->addEntry( tempEntry );
+        if (mem_interface_)
+            mem_interface_->sendRequest( req );
         return 1;
     }
     bool doStore(uint64_t addr, DataPackage* data_package)
@@ -56,12 +58,15 @@ public:
     
         SST_STONNE::LSEntry* tempEntry = new SST_STONNE::LSEntry( req->id, data_package, 1);
         write_queue_->addEntry( tempEntry );
+        if (mem_interface_)
+            mem_interface_->sendRequest( req );
         return 1;
     }
 
     //SST Memory hierarchy component structures and variables
     SST_STONNE::LSQueue* load_queue_;
     SST_STONNE::LSQueue* write_queue_;
+    SimpleMem*  mem_interface_ = NULL;
 
     virtual void printStats(std::ofstream& out, unsigned int indent) {assert(false);}
     virtual void printEnergy(std::ofstream& out, unsigned int indent) {assert(false);}

@@ -2,21 +2,23 @@
 #include "sstStonne.h"
 #include <math.h>
 #include <iostream>
-#include "include/utility.h"
+#include <iomanip>
+#include "utility.h"
 using namespace SST_STONNE;
 
 //Constructor
-sstStonne::sstStonne()  {
+sstStonne::sstStonne(std::string config_file, std::string mem_file) :
+    stonne_cfg(Config(config_file)), memFileName(mem_file) {
     //set up memory interfaces
-    //mem_interface_ = ; //FIXME
+    mem_interface_ = new SimpleMem();
 
     write_queue_ = new LSQueue();
     load_queue_ = new LSQueue();
 }
 
-sstStonne::~sstStonne() {
+sstStonne::sstStonne(std::string config_file) : sstStonne(config_file, "") {};
 
-}
+sstStonne::~sstStonne() {}
 
 void sstStonne::init( uint32_t phase )
 {
@@ -48,43 +50,48 @@ void sstStonne::init( uint32_t phase )
 }
 
 
-bool sstStonne::cycle() {
+void sstStonne::cycle() {
     stonne_instance->cycle();
-    bool work_done = stonne_instance->isExecutionFinished();
-    if(work_done) {
-        if(this->stonne_cfg.print_stats_enabled) { //If sats printing is enable
-            stonne_instance->printStats();
-            std::cout << "Stats printed correctly" << std::endl;
-            stonne_instance->printEnergy();
-        }
-        std::cout << "The execution has finished in sstStonne" << std::endl;
-    }
-    return work_done;
 }
 
-void sstStonne::setup() {
+void sstStonne::setup(StonneOpDesc operation) {
     //Creating arrays for this version of the integration
-    if((kernelOperation==CONV) || (kernelOperation==GEMM)) { //Initializing dense operation
-        switch(kernelOperation) {
+    opDesc = operation;
+    dram_matrixA_address = operation.matrix_a_dram_address;
+    dram_matrixB_address = operation.matrix_b_dram_address;
+    dram_matrixC_address = operation.matrix_c_dram_address;
+
+    memMatrixCFileName = opDesc.mem_matrix_c_file_name;
+    bitmapMatrixAFileName = opDesc.bitmap_matrix_a_init;
+    bitmapMatrixBFileName = opDesc.bitmap_matrix_b_init;
+
+    rowpointerMatrixAFileName = opDesc.rowpointer_matrix_a_init;
+    colpointerMatrixAFileName = opDesc.rowpointer_matrix_a_init;
+    rowpointerMatrixBFileName = opDesc.rowpointer_matrix_a_init;
+    colpointerMatrixBFileName = opDesc.rowpointer_matrix_a_init;
+
+    if((opDesc.operation==CONV) || (opDesc.operation==GEMM)) { //Initializing dense operation
+        switch(opDesc.operation) {
             case CONV:
-                matrixA_size=N*X*Y*C; //ifmap
-                matrixB_size=R*S*(C/G)*K;
-                matrixC_size=N*X_*Y_*K;
+                matrixA_size=opDesc.N*opDesc.X*opDesc.Y*opDesc.C; //ifmap
+                matrixB_size=opDesc.R*opDesc.S*(opDesc.C/opDesc.G)*opDesc.K;
+                matrixC_size=opDesc.N*opDesc.X_*opDesc.Y_*opDesc.K;
                 break;
             case GEMM:
-                matrixA_size=GEMM_M*GEMM_K;
-                matrixB_size=GEMM_N*GEMM_K;
-                matrixC_size=GEMM_M*GEMM_N;
+                matrixA_size=opDesc.GEMM_M*opDesc.GEMM_K;
+                matrixB_size=opDesc.GEMM_N*opDesc.GEMM_K;
+                matrixC_size=opDesc.GEMM_M*opDesc.GEMM_N;
                 break;
             default:
-        };
+                break;
+        }
         matrixA = NULL; //TODO: remove when everything is done
         matrixB = NULL;
         matrixC = new float[matrixC_size];
     } //End initializing dense operation
 
     else { //Initializing sparse operation
-        if(kernelOperation==bitmapSpMSpM) {
+        if(opDesc.operation==bitmapSpMSpM) {
             if(bitmapMatrixAFileName=="") {
 
             }
@@ -92,9 +99,9 @@ void sstStonne::setup() {
 
             }
 
-            matrixA_size=GEMM_M*GEMM_K;
-            matrixB_size=GEMM_N*GEMM_K;
-            matrixC_size=GEMM_M*GEMM_N;
+            matrixA_size=opDesc.GEMM_M*opDesc.GEMM_K;
+            matrixB_size=opDesc.GEMM_N*opDesc.GEMM_K;
+            matrixC_size=opDesc.GEMM_M*opDesc.GEMM_N;
             bitmapMatrixA=new unsigned int[matrixA_size];
             bitmapMatrixB=new unsigned int[matrixB_size];
             bitmapMatrixC=new unsigned int[matrixC_size];
@@ -103,14 +110,14 @@ void sstStonne::setup() {
             matrixC=new float[matrixC_size];
         } //End bitmapSpMSpM operation
 
-        else if(kernelOperation==csrSpMM) {
+        else if(opDesc.operation==csrSpMM) {
             if(rowpointerMatrixAFileName=="") {
             }
             if(colpointerMatrixAFileName=="") {
             }
-            matrixA_size=GEMM_M*GEMM_K;
-            matrixB_size=GEMM_N*GEMM_K;
-            matrixC_size=GEMM_M*GEMM_N;
+            matrixA_size=opDesc.GEMM_M*opDesc.GEMM_K;
+            matrixB_size=opDesc.GEMM_N*opDesc.GEMM_K;
+            matrixC_size=opDesc.GEMM_M*opDesc.GEMM_N;
 
             rowpointerMatrixA=new unsigned int[matrixA_size]; //Change to the minimum using vector class
             colpointerMatrixA=new unsigned int[matrixA_size];
@@ -123,10 +130,10 @@ void sstStonne::setup() {
 
         } //End csrSpMM operation
 
-        else if((kernelOperation==outerProductGEMM) || (kernelOperation==gustavsonsGEMM)) {
-            matrixA_size=GEMM_M*GEMM_K;
-            matrixB_size=GEMM_N*GEMM_K;
-            matrixC_size=GEMM_M*GEMM_N;
+        else if((opDesc.operation==outerProductGEMM) || (opDesc.operation==gustavsonsGEMM)) {
+            matrixA_size=opDesc.GEMM_M*opDesc.GEMM_K;
+            matrixB_size=opDesc.GEMM_N*opDesc.GEMM_K;
+            matrixC_size=opDesc.GEMM_M*opDesc.GEMM_N;
 
             rowpointerMatrixA=new unsigned int[matrixA_size+1]; //Change to the minimum using vector class
             colpointerMatrixA=new unsigned int[matrixA_size+1];
@@ -149,26 +156,27 @@ void sstStonne::setup() {
     //Updating hardware parameters
     stonne_instance = new Stonne(stonne_cfg, load_queue_, write_queue_, mem_interface_);
 
-    switch(kernelOperation) {
+    switch(opDesc.operation) {
         case CONV:
-            stonne_instance->loadDNNLayer(CONV, layer_name, R, S, C, K, G, N, X, Y, strides, matrixA, matrixB, matrixC, CNN_DATAFLOW); //Loading the layer
-            stonne_instance->loadTile(T_R, T_S, T_C, T_K, T_G, T_N, T_X_, T_Y_);
+            stonne_instance->loadDNNLayer(CONV, opDesc.layer_name, opDesc.R, opDesc.S, opDesc.C, opDesc.K,
+                opDesc.G, opDesc.N, opDesc.X, opDesc.Y, opDesc.strides, matrixA, matrixB, matrixC, CNN_DATAFLOW); //Loading the layer
+            stonne_instance->loadTile(opDesc.T_R, opDesc.T_S, opDesc.T_C, opDesc.T_K, opDesc.T_G, opDesc.T_N, opDesc.T_X_, opDesc.T_Y_);
             break;
         case GEMM:
-            stonne_instance->loadDenseGEMM(layer_name, GEMM_N, GEMM_K, GEMM_M, matrixA, matrixB, matrixC, CNN_DATAFLOW);
-            stonne_instance->loadGEMMTile(GEMM_T_N, GEMM_T_K, GEMM_T_M);
+            stonne_instance->loadDenseGEMM(opDesc.layer_name, opDesc.GEMM_N, opDesc.GEMM_K, opDesc.GEMM_M, matrixA, matrixB, matrixC, CNN_DATAFLOW);
+            stonne_instance->loadGEMMTile(opDesc.GEMM_T_N, opDesc.GEMM_T_K, opDesc.GEMM_T_M);
                 break;
         case bitmapSpMSpM:
-            stonne_instance->loadGEMM(layer_name, GEMM_N, GEMM_K, GEMM_M, matrixA, matrixB, bitmapMatrixA, bitmapMatrixB, matrixC, bitmapMatrixC, MK_STA_KN_STR );
+            stonne_instance->loadGEMM(opDesc.layer_name, opDesc.GEMM_N, opDesc.GEMM_K, opDesc.GEMM_M, matrixA, matrixB, bitmapMatrixA, bitmapMatrixB, matrixC, bitmapMatrixC, MK_STA_KN_STR );
             break;
         case csrSpMM:
-            stonne_instance->loadSparseDense(layer_name, GEMM_N, GEMM_K, GEMM_M, matrixA, matrixB, colpointerMatrixA, rowpointerMatrixA, matrixC, GEMM_T_N, GEMM_T_K);
+            stonne_instance->loadSparseDense(opDesc.layer_name, opDesc.GEMM_N, opDesc.GEMM_K, opDesc.GEMM_M, matrixA, matrixB, colpointerMatrixA, rowpointerMatrixA, matrixC, opDesc.GEMM_T_N, opDesc.GEMM_T_K);
             break;
         case outerProductGEMM:
-            stonne_instance->loadSparseOuterProduct(layer_name, GEMM_N, GEMM_K, GEMM_M, matrixA, matrixB, colpointerMatrixA, rowpointerMatrixA, colpointerMatrixB, rowpointerMatrixB, matrixC);
+            stonne_instance->loadSparseOuterProduct(opDesc.layer_name, opDesc.GEMM_N, opDesc.GEMM_K, opDesc.GEMM_M, matrixA, matrixB, colpointerMatrixA, rowpointerMatrixA, colpointerMatrixB, rowpointerMatrixB, matrixC);
             break;
         case gustavsonsGEMM:
-            stonne_instance->loadSparseOuterProduct(layer_name, GEMM_N, GEMM_K, GEMM_M, matrixA, matrixB, colpointerMatrixA, rowpointerMatrixA, colpointerMatrixB, rowpointerMatrixB, matrixC);
+            stonne_instance->loadSparseOuterProduct(opDesc.layer_name, opDesc.GEMM_N, opDesc.GEMM_K, opDesc.GEMM_M, matrixA, matrixB, colpointerMatrixA, rowpointerMatrixA, colpointerMatrixB, rowpointerMatrixB, matrixC);
             break;
         default:
             break;
@@ -216,7 +224,7 @@ unsigned int sstStonne::constructBitmap(std::string fileName, unsigned int * arr
         }
         inputStream.close();
     } else {
-            exit(0);
+        exit(0);
     }
     return nActiveValues;
 }
@@ -246,20 +254,19 @@ unsigned int sstStonne::constructCSRStructure(std::string fileName, unsigned int
 void sstStonne::finish() {
     //This code should have the logic to write the output memory into a certain file passed by parameter. TODO
     dumpMemoryToFile(memMatrixCFileName, matrixC, matrixC_size);
-    std::cout << "The file is dumped" << std::endl;
     //delete stonne_instance;
     //delete[] matrixC;
 
-    if(kernelOperation==bitmapSpMSpM) {
+    if(opDesc.operation==bitmapSpMSpM) {
         delete[] bitmapMatrixA;
         delete[] bitmapMatrixB;
     }
 
-    else if(kernelOperation==csrSpMM) {
+    else if(opDesc.operation==csrSpMM) {
         delete[] rowpointerMatrixA;
         delete[] colpointerMatrixA;
     }
-    else if((kernelOperation==outerProductGEMM) || (kernelOperation==gustavsonsGEMM)) {
+    else if((opDesc.operation==outerProductGEMM) || (opDesc.operation==gustavsonsGEMM)) {
         delete[] rowpointerMatrixA;
         delete[] colpointerMatrixA;
         delete[] rowpointerMatrixB;
@@ -296,10 +303,12 @@ void sstStonne::handleEvent( SimpleMem::Request* ev ) {
         //               " to PE %" PRIu32 "\n", memValue, addr, ls_queue_->lookupEntry( ev->id ).second );
         load_queue_->setEntryData( ev->id, memValue);
         load_queue_->setEntryReady( ev->id, 1 );
-    } else {
+    } else if ( ev->cmd == SimpleMem::Request::Command::WriteResp) {
         //output_->verbose(CALL_INFO, 8, 0, "Response to a write for addr: %" PRIu64 " to PE %" PRIu32 "\n",
         //                 ev->addr, ls_queue_->lookupEntry( ev->id ).second );
         write_queue_->setEntryReady( ev->id, 1 );
+    } else {
+        //error log...
     }
 
     // Need to clean up the events coming back from the cache

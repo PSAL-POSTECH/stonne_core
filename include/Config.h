@@ -154,6 +154,7 @@ public:
 
     //Constructor runs reset()
     Config();
+    Config(std::string config_file);
 
     //Load parameters from configuration file using TOML Syntax
     void loadFile(std::string config_file);

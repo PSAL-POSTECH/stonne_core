@@ -24,7 +24,7 @@
 #include <cstdint>
 #include "types.h"
 #include "DataPackage.h"
-#include "MemInterface.h"
+#include "SimpleMem.h"
 
 
 
@@ -153,6 +153,7 @@ public:
             exit(-1);
         }
     }
+    std::map< uint32_t, LSEntry* > getPendings() { return pending_; }
 protected:
 private:
     std::queue< uint32_t > completed_memory_queue_;

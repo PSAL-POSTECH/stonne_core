@@ -1,6 +1,6 @@
 # Compiler settings
 CXX = g++
-CXXFLAGS = -std=c++17 -O3 -fPIC -Iinclude/ -Iexternal/
+CXXFLAGS = -std=c++17 -O0 -g -fPIC -Iinclude/ -Iexternal/
 LDFLAGS = -shared
 
 # Directories

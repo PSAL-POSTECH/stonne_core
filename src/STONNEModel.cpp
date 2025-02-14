@@ -360,16 +360,14 @@ bool Stonne::isExecutionFinished() {
 
 
 void Stonne::cycle() {
-        this->mem->cycle();
-        this->collectionBusRN->cycle(); 
+    this->mem->cycle();
+    this->collectionBusRN->cycle();
     this->collectionBusMN->cycle();
-        this->asnet->cycle();
-        this->lt->cycle();
-        this->msnet->cycle();
-        this->dsnet->cycle();
-        this->n_cycles++;
-    
-
+    this->asnet->cycle();
+    this->lt->cycle();
+    this->msnet->cycle();
+    this->dsnet->cycle();
+    this->n_cycles++;
 }
 
 //General function to print all the STATS
