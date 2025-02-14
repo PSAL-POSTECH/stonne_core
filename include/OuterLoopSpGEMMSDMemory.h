@@ -30,7 +30,7 @@ private:
 
     unsigned int M;
     unsigned int N;
-    unsigned int K;   //Number of columns MK matrix and rows KN matrix. Extracted from dnn_layer->get_C(); 
+    unsigned int K;   //Number of columns MK matrix and rows KN matrix. Extracted from dnn_layer->get_C();
 
     Connection* write_connection;
     SparsityControllerState current_state; //Stage to control what to do according to the state
@@ -39,23 +39,23 @@ private:
     std::vector<int> ms_group;
     //Connection* read_connection;
     std::vector<Connection*> read_connections; //Input port connections. There are as many connections as n_read_ports are specified.
-  
+
     //Input parameters
     unsigned int num_ms;
     unsigned int n_read_ports;
-    unsigned int n_write_ports; 
+    unsigned int n_write_ports;
     unsigned int write_buffer_capacity;
     unsigned int port_width;
 
     unsigned int ms_size_per_input_port;
     //Fifos
     Fifo* write_fifo; //Fifo uses to store the writes before going to the memory
-    
+
     std::vector<Fifo*> input_fifos; //Fifos used to store the inputs before being fetched
     std::vector<Fifo*> psum_fifos; //Fifos used to store partial psums before being fetched
     //Fifo* read_fifo; //Fifo used to store the inputs before being fetched
     //Fifo* psums_fifo; //Fifo used to store partial psums before being fetched
- 
+
     //Addresses
     address_t MK_address;
     address_t KN_address;
@@ -67,12 +67,8 @@ private:
     metadata_address_t MK_row_id;
     metadata_address_t MK_col_pointer; //Actually this is col pointer, but the functionality is the same.
     metadata_address_t KN_col_id;
-    metadata_address_t KN_row_pointer; 
+    metadata_address_t KN_row_pointer;
 
-    //SST Memory hierarchy component structures and variables
-    SimpleMem*  mem_interface_;
-    
-    
     //Current pointers
     unsigned int current_MK;
     unsigned int current_MK_col_pointer;
@@ -88,9 +84,9 @@ private:
 
     uint32_t data_width;
     uint32_t n_write_mshr;
-   
+
     //Aux parameters
-    unsigned int MK_number_nnz; 
+    unsigned int MK_number_nnz;
     unsigned int multipliers_used;
     unsigned int n_str_data_sent;
     unsigned int n_str_data_received;
@@ -107,50 +103,50 @@ private:
     bool STR_complete;
     bool multiplication_phase_finished;
     bool sort_down_last_iteration_finished;
-    bool sort_down_iteration_finished; 
+    bool sort_down_iteration_finished;
     bool sort_up_iteration_finished;
     bool sort_up_received_first_value;
-    
-    
-    bool metadata_loaded;   //Flag that indicates whether the metadata has been loaded 
+
+
+    bool metadata_loaded;   //Flag that indicates whether the metadata has been loaded
     bool layer_loaded; //Flag that indicates whether the layer has been loaded.
-   
 
-   unsigned int current_output;
-   unsigned int output_size; 
+    //SST Memory hierarchy component structures and variables
+    SST_STONNE::LSQueue* load_queue_;
+    SST_STONNE::LSQueue* write_queue_;
+    SimpleMem* mem_interface_ = NULL;
 
-   unsigned int current_output_iteration;
-   unsigned int output_size_iteration;
+    unsigned int current_output;
+    unsigned int output_size;
 
-   //SORTING TREE CONTROL
-   unsigned int sort_col_id;
-   unsigned int sort_row_id;
-   unsigned int sort_sub_block_id;
-   unsigned int sort_num_blocks;
-   bool swap_memory_enabled; 
-   //For stats
-   unsigned int n_ones_sta_matrix;
-   unsigned int n_ones_str_matrix;
-   std::vector<Connection*> write_port_connections; 
-   cycles_t local_cycle;
-   SDMemoryStats sdmemoryStats; //To track information
+    unsigned int current_output_iteration;
+    unsigned int output_size_iteration;
 
-   Tile* tile; //Not really used in sparseflex
+    //SORTING TREE CONTROL
+    unsigned int sort_col_id;
+    unsigned int sort_row_id;
+    unsigned int sort_sub_block_id;
+    unsigned int sort_num_blocks;
+    bool swap_memory_enabled;
+    //For stats
+    unsigned int n_ones_sta_matrix;
+    unsigned int n_ones_str_matrix;
+    std::vector<Connection*> write_port_connections;
+    cycles_t local_cycle;
+    SDMemoryStats sdmemoryStats; //To track information
 
-   //Variable to manage the number of sorting iterations
-   int sorting_iterations;
-   int current_sorting_iteration;
-   int n_values_stored;
-   
-   //Aux functions
-   void receive();
-   void send();
-   void sendPackageToInputFifos(DataPackage* pck);
-   std::vector<Connection*> getWritePortConnections()    const {return this->write_port_connections;}
+    Tile* tile; //Not really used in sparseflex
 
+    //Variable to manage the number of sorting iterations
+    int sorting_iterations;
+    int current_sorting_iteration;
+    int n_values_stored;
 
-    
-    
+    //Aux functions
+    void receive();
+    void send();
+    void sendPackageToInputFifos(DataPackage* pck);
+    std::vector<Connection*> getWritePortConnections()    const {return this->write_port_connections;}
 public:
     OuterLoopSpGEMMSDMemory(id_t id, std::string name, Config stonne_cfg, Connection* write_connection, SST_STONNE::LSQueue* load_queue_, SST_STONNE::LSQueue* write_queue_, SimpleMem*  mem_interface_);
     ~OuterLoopSpGEMMSDMemory();
@@ -168,7 +164,36 @@ public:
     void printStats(std::ofstream& out, unsigned int indent);
     void printEnergy(std::ofstream& out, unsigned int indent);
     SDMemoryStats getStats() {return this->sdmemoryStats;}
+    bool doLoad(uint64_t addr, DataPackage* data_package)
+    {
+        SimpleMem::Request* req = new SimpleMem::Request(SimpleMem::Request::Read, addr, this->data_width);
+        SST_STONNE::LSEntry* tempEntry = new SST_STONNE::LSEntry( req->id, data_package, 0 );
+        load_queue_->addEntry( tempEntry );
+        if (mem_interface_) {
+            mem_interface_->sendRequest( req );
+        } else {
+            std::cerr << "meminterface is not set!\n";
+        }
+        return 1;
+    }
+    bool doStore(uint64_t addr, DataPackage* data_package)
+    {
+        SimpleMem::Request* req = new SimpleMem::Request(SimpleMem::Request::Write, addr, 4);
+        const auto newValue = data_package->get_data();
+        constexpr auto size = sizeof(uint32_t);
+        uint8_t buffer[size] = {};
+        std::memcpy(buffer, std::addressof(newValue), size);
 
+        std::vector< uint8_t > payload(4);
+        memcpy( std::addressof(payload[0]), std::addressof(newValue), size );
+        req->setPayload( payload );
+
+        SST_STONNE::LSEntry* tempEntry = new SST_STONNE::LSEntry( req->id, data_package, 1);
+        write_queue_->addEntry( tempEntry );
+        if (mem_interface_)
+            mem_interface_->sendRequest( req );
+        return 1;
+    }
 };
 
 

@@ -2,6 +2,20 @@
 
 uint32_t SimpleMem::Request::id_seed=0;
 
+void SimpleMem::Request::setReply() {
+    switch (cmd)
+    {
+    case Command::Read:
+        cmd = Command::ReadResp;
+        break;
+    case Command::Write:
+        cmd = Command::WriteResp;
+        break;
+    default:
+        std::cout <<"[setReply] Unexpected request type\n";
+        exit(1);
+    }
+}
 // Constructor
 SimpleMem::SimpleMem() {
     std::cout << "[Functional Memory] SimpleMem initialized." << std::endl;
@@ -28,17 +42,19 @@ void SimpleMem::sendRequest(Request* req) {
     switch (req->getcmd()) {
         case Request::Command::Read:
             std::cout << "[Read] Processing request at address " << req->getAddress() << std::endl;
-            for (uint64_t offset=0; offset<req->getSize(); offset++) {
-                if (dataArray.find(addr+offset) == dataArray.end()) {
-                    dataArray[addr+offset] = 0;
-                }
-                req->getData().at(offset) = dataArray[addr+offset];
-            }
+            //for (uint64_t offset=0; offset<req->getSize(); offset++) {
+            //    //if (dataArray.find(addr+offset) == dataArray.end()) {
+            //    //    dataArray[addr+offset] = 0;
+            //    //}
+            //    req->getData().at(offset) = dataArray[addr+offset];
+            //}
+            request_queue.push(req);
             break;
         case Request::Command::Write:
             std::cout << "[Write] Processing request at address " << req->getAddress() << std::endl;
-            for (uint64_t offset=0; offset<req->getSize(); offset++)
-                dataArray[addr+offset] = req->getData().at(offset);
+            //for (uint64_t offset=0; offset<req->getSize(); offset++)
+            //    dataArray[addr+offset] = req->getData().at(offset);
+            request_queue.push(req);
             break;
         case Request::Command::ReadResp:
         case Request::Command::WriteResp:
@@ -46,4 +62,14 @@ void SimpleMem::sendRequest(Request* req) {
             std::cerr << "[Error] Unknown command type!" << std::endl;
             break;
     }
+}
+
+SimpleMem::Request* SimpleMem::popRequest() {
+    if (request_queue.size()==0) {
+        return NULL;
+    }
+    auto req = request_queue.front();
+    std::cout<<"popRequest addr: " << req->getAddress() <<"\n";
+    request_queue.pop();
+    return req;
 }

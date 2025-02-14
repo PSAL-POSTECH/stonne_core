@@ -35,43 +35,8 @@ public:
     virtual void setDenseSpatialData(unsigned int T_N, unsigned int T_K){assert(false);}
     virtual void setSparseMatrixMetadata(metadata_address_t MK_metadata_id, metadata_address_t MK_metadata_pointer){assert(false);}
     virtual void setSparseMatrixMetadata(metadata_address_t MK_metadata_id, metadata_address_t MK_metadata_pointer, metadata_address_t KN_metadata_id, metadata_address_t KN_metadata_pointer) {assert(false);}
-    bool doLoad(uint64_t addr, DataPackage* data_package)
-    {
-        SimpleMem::Request* req = new SimpleMem::Request(SimpleMem::Request::Read, addr, this->data_width);
-        SST_STONNE::LSEntry* tempEntry = new SST_STONNE::LSEntry( req->id, data_package, 0 );
-        load_queue_->addEntry( tempEntry );
-        if (mem_interface_)
-            mem_interface_->sendRequest( req );
-        return 1;
-    }
-    bool doStore(uint64_t addr, DataPackage* data_package)
-    {
-        SimpleMem::Request* req = new SimpleMem::Request(SimpleMem::Request::Write, addr, 4);
-        const auto newValue = data_package->get_data();
-        constexpr auto size = sizeof(uint32_t);
-        uint8_t buffer[size] = {};
-        std::memcpy(buffer, std::addressof(newValue), size);
-    
-        std::vector< uint8_t > payload(4);
-        memcpy( std::addressof(payload[0]), std::addressof(newValue), size );
-        req->setPayload( payload );
-    
-        SST_STONNE::LSEntry* tempEntry = new SST_STONNE::LSEntry( req->id, data_package, 1);
-        write_queue_->addEntry( tempEntry );
-        if (mem_interface_)
-            mem_interface_->sendRequest( req );
-        return 1;
-    }
-
-    //SST Memory hierarchy component structures and variables
-    SST_STONNE::LSQueue* load_queue_;
-    SST_STONNE::LSQueue* write_queue_;
-    SimpleMem*  mem_interface_ = NULL;
-
     virtual void printStats(std::ofstream& out, unsigned int indent) {assert(false);}
     virtual void printEnergy(std::ofstream& out, unsigned int indent) {assert(false);}
-protected:
-    uint32_t data_width;
 };
 
 

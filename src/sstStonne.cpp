@@ -291,16 +291,12 @@ void sstStonne::dumpMemoryToFile(std::string fileName, float* array, unsigned in
     }
 }
 
-void sstStonne::handleEvent( SimpleMem::Request* ev ) {
+void sstStonne::pushResponse( SimpleMem::Request* ev ) {
     if( ev->cmd == SimpleMem::Request::Command::ReadResp ) {
         // Read request needs some special handling
-        uint64_t addr = ev->addr;
         data_t memValue = 0.0;
 
         std::memcpy( std::addressof(memValue), std::addressof(ev->data[0]), sizeof(memValue) );
-        //std::cout << "Response to read addr " << addr << " has arrived with data " << memValue << std::endl;
-        //output_->verbose(CALL_INFO, 8, 0, "Response to a read, payload=%" PRIu64 ", for addr: %" PRIu64
-        //               " to PE %" PRIu32 "\n", memValue, addr, ls_queue_->lookupEntry( ev->id ).second );
         load_queue_->setEntryData( ev->id, memValue);
         load_queue_->setEntryReady( ev->id, 1 );
     } else if ( ev->cmd == SimpleMem::Request::Command::WriteResp) {

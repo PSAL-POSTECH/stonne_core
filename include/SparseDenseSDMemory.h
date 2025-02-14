@@ -28,7 +28,7 @@ private:
     unsigned int N;
 
     unsigned int dim_sta;   //Number of vectors sta matrix. Extracted from dnn_layer->get_K(); (See equivalence with CNN)
-    unsigned int K;   //Number of columns MK matrix and rows KN matrix. Extracted from dnn_layer->get_C(); 
+    unsigned int K;   //Number of columns MK matrix and rows KN matrix. Extracted from dnn_layer->get_C();
     unsigned int dim_str;   //Number of vectors str matrix. Extracted from dnn_layer->get_N()
     unsigned int STA_DIST_ELEM;  //Distance in bitmap memory between two elements of the same vector
     unsigned int STA_DIST_VECTOR; //Disctance in bitmap memory between two elements of differ vectors.
@@ -45,23 +45,23 @@ private:
     std::vector<unsigned int> vnat_table_iterm; //Iden but for row
     //Connection* read_connection;
     std::vector<Connection*> read_connections; //Input port connections. There are as many connections as n_read_ports are specified.
-  
+
     //Input parameters
     unsigned int num_ms;
     unsigned int n_read_ports;
-    unsigned int n_write_ports; 
+    unsigned int n_write_ports;
     unsigned int write_buffer_capacity;
     unsigned int port_width;
 
     unsigned int ms_size_per_input_port;
     //Fifos
     Fifo* write_fifo; //Fifo uses to store the writes before going to the memory
-    
+
     std::vector<Fifo*> input_fifos; //Fifos used to store the inputs before being fetched
     std::vector<Fifo*> psum_fifos; //Fifos used to store partial psums before being fetched
     //Fifo* read_fifo; //Fifo used to store the inputs before being fetched
     //Fifo* psums_fifo; //Fifo used to store partial psums before being fetched
- 
+
     //Addresses
     address_t MK_address;
     address_t KN_address;
@@ -80,7 +80,7 @@ private:
 
     uint32_t data_width;
     uint32_t n_write_mshr;
-    
+
     //Tile parameters
     unsigned int T_N_min;       //Minimum value of T_N
     unsigned int T_N;           //Actual value of T_N if adaptive tiling is used
@@ -89,19 +89,19 @@ private:
     unsigned int iter_N;
     unsigned int iter_K;  //This one will change for every value of V (vertex)
     unsigned int iter_M;
-    
+
     //Current parameters
     unsigned int current_M;
     unsigned int current_N;
-    unsigned int current_K_nnz;    
+    unsigned int current_K_nnz;
     unsigned int K_nnz;
-    
+
     //Counters to calculate SRC and DST
     unsigned int* sta_counters_table; //Matrix of size rows*columns to figure out the dst of each sta value
     unsigned int* str_counters_table; //Matrix of size rows*columns of the str matrix to calculate the source of each bit enabled.
 
     //Pointers
-    unsigned int str_current_index; //Streaming current index to calculate the next values to stream 
+    unsigned int str_current_index; //Streaming current index to calculate the next values to stream
     unsigned int sta_current_index_metadata; //Stationary matrix current index (e.g., row in MK)
     unsigned int sta_current_index_matrix; //Index to next element in the sparse matrix
     unsigned int sta_current_j_metadata; //Index to current element in the same cluster. Used to manage folding
@@ -117,34 +117,35 @@ private:
     bool execution_finished; //Flag that indicates when the execution is over. This happens when all the output values have been calculated.
     bool sta_iter_completed; //Indicates if the pending psums have been writen back
     bool STA_complete;
-    
-    bool metadata_loaded;   //Flag that indicates whether the metadata has been loaded 
+
+    bool metadata_loaded;   //Flag that indicates whether the metadata has been loaded
     bool layer_loaded; //Flag that indicates whether the layer has been loaded.
-   
 
-   unsigned int current_output;
-   unsigned int output_size; 
+    //SST Memory hierarchy component structures and variables
+    SST_STONNE::LSQueue* load_queue_;
+    SST_STONNE::LSQueue* write_queue_;
+    SimpleMem* mem_interface_ = NULL;
 
-   unsigned int current_output_iteration;
-   unsigned int output_size_iteration;
+    unsigned int current_output;
+    unsigned int output_size;
 
-   //For stats
-   unsigned int n_ones_sta_matrix;
-   unsigned int n_ones_str_matrix;
-   std::vector<Connection*> write_port_connections; 
-   cycles_t local_cycle;
-   SDMemoryStats sdmemoryStats; //To track information
+    unsigned int current_output_iteration;
+    unsigned int output_size_iteration;
 
-   //SST Memory hierarchy component structures and variables
-   SimpleMem*  mem_interface_;
-   
-   //Aux functions
-   void receive();
-   void send();
-   void sendPackageToInputFifos(DataPackage* pck);
-   std::vector<Connection*> getWritePortConnections()    const {return this->write_port_connections;}
-    
-    
+    //For stats
+    unsigned int n_ones_sta_matrix;
+    unsigned int n_ones_str_matrix;
+    std::vector<Connection*> write_port_connections;
+    cycles_t local_cycle;
+    SDMemoryStats sdmemoryStats; //To track information
+
+    //Aux functions
+    void receive();
+    void send();
+    void sendPackageToInputFifos(DataPackage* pck);
+    std::vector<Connection*> getWritePortConnections()    const {return this->write_port_connections;}
+
+
 public:
     SparseDenseSDMemory(id_t id, std::string name, Config stonne_cfg, Connection* write_connection, SST_STONNE::LSQueue* load_queue_, SST_STONNE::LSQueue* write_queue_, SimpleMem*  mem_interface_);
     ~SparseDenseSDMemory();
@@ -163,7 +164,36 @@ public:
     void printStats(std::ofstream& out, unsigned int indent);
     void printEnergy(std::ofstream& out, unsigned int indent);
     SDMemoryStats getStats() {return this->sdmemoryStats;}
+    bool doLoad(uint64_t addr, DataPackage* data_package)
+    {
+        SimpleMem::Request* req = new SimpleMem::Request(SimpleMem::Request::Read, addr, this->data_width);
+        SST_STONNE::LSEntry* tempEntry = new SST_STONNE::LSEntry( req->id, data_package, 0 );
+        load_queue_->addEntry( tempEntry );
+        if (mem_interface_) {
+            mem_interface_->sendRequest( req );
+        } else {
+            std::cerr << "meminterface is not set!\n";
+        }
+        return 1;
+    }
+    bool doStore(uint64_t addr, DataPackage* data_package)
+    {
+        SimpleMem::Request* req = new SimpleMem::Request(SimpleMem::Request::Write, addr, 4);
+        const auto newValue = data_package->get_data();
+        constexpr auto size = sizeof(uint32_t);
+        uint8_t buffer[size] = {};
+        std::memcpy(buffer, std::addressof(newValue), size);
 
+        std::vector< uint8_t > payload(4);
+        memcpy( std::addressof(payload[0]), std::addressof(newValue), size );
+        req->setPayload( payload );
+
+        SST_STONNE::LSEntry* tempEntry = new SST_STONNE::LSEntry( req->id, data_package, 1);
+        write_queue_->addEntry( tempEntry );
+        if (mem_interface_)
+            mem_interface_->sendRequest( req );
+        return 1;
+    }
 };
 
 

@@ -137,19 +137,21 @@ private:
     unsigned int group_size;
 
     std::list<DataPackage*> packages_created; // Vector used to track the packages and delete them at the end of the execution
-   std::vector<Connection*> write_port_connections; 
-   VNAT_Register** VNAT;  //VNAT with as many registers as VN configured in the accelerator
-   cycles_t local_cycle;
-   SDMemoryStats sdmemoryStats; //To track information
+    std::vector<Connection*> write_port_connections; 
+    VNAT_Register** VNAT;  //VNAT with as many registers as VN configured in the accelerator
+    cycles_t local_cycle;
+    SDMemoryStats sdmemoryStats; //To track information
 
-   //SST Memory hierarchy component structures and variables
-   SimpleMem*  mem_interface_;
-   
-   //Aux functions
-   void receive();
-   void sendPackageToInputFifos(DataPackage* pck);
-   void send();
-   std::vector<Connection*> getWritePortConnections()    const {return this->write_port_connections;}
+    //SST Memory hierarchy component structures and variables
+    SST_STONNE::LSQueue* load_queue_;
+    SST_STONNE::LSQueue* write_queue_;
+    SimpleMem* mem_interface_ = NULL;
+
+    //Aux functions
+    void receive();
+    void sendPackageToInputFifos(DataPackage* pck);
+    void send();
+    std::vector<Connection*> getWritePortConnections()    const {return this->write_port_connections;}
     
     
 public:
@@ -164,7 +166,36 @@ public:
     //Used to configure the MultiplierNetwork according to the controller if needed
     void setMultiplierNetwork(MultiplierNetwork* multiplier_network) {this->multiplier_network = multiplier_network;}
 
+    bool doLoad(uint64_t addr, DataPackage* data_package)
+    {
+        SimpleMem::Request* req = new SimpleMem::Request(SimpleMem::Request::Read, addr, this->data_width);
+        SST_STONNE::LSEntry* tempEntry = new SST_STONNE::LSEntry( req->id, data_package, 0 );
+        load_queue_->addEntry( tempEntry );
+        if (mem_interface_) {
+            mem_interface_->sendRequest( req );
+        } else {
+            std::cerr << "meminterface is not set!\n";
+        }
+        return 1;
+    }
+    bool doStore(uint64_t addr, DataPackage* data_package)
+    {
+        SimpleMem::Request* req = new SimpleMem::Request(SimpleMem::Request::Write, addr, 4);
+        const auto newValue = data_package->get_data();
+        constexpr auto size = sizeof(uint32_t);
+        uint8_t buffer[size] = {};
+        std::memcpy(buffer, std::addressof(newValue), size);
 
+        std::vector< uint8_t > payload(4);
+        memcpy( std::addressof(payload[0]), std::addressof(newValue), size );
+        req->setPayload( payload );
+
+        SST_STONNE::LSEntry* tempEntry = new SST_STONNE::LSEntry( req->id, data_package, 1);
+        write_queue_->addEntry( tempEntry );
+        if (mem_interface_)
+            mem_interface_->sendRequest( req );
+        return 1;
+    }
     void cycle();
     bool isExecutionFinished();
    

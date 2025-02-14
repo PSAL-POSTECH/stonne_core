@@ -109,28 +109,28 @@ private:
     bool layer_loaded; //Flag that indicates whether the layer has been loaded.
 
     //SST Memory hierarchy component structures and variables
-    SimpleMem*  mem_interface_;
+    SST_STONNE::LSQueue* load_queue_;
+    SST_STONNE::LSQueue* write_queue_;
+    SimpleMem* mem_interface_ = NULL;  
 
+    unsigned int current_output;
+    unsigned int output_size; 
+
+    unsigned int current_output_iteration;
+    unsigned int output_size_iteration;
+
+    //For stats
+    unsigned int n_ones_sta_matrix;
+    unsigned int n_ones_str_matrix;
+    std::vector<Connection*> write_port_connections; 
+    cycles_t local_cycle;
+    SDMemoryStats sdmemoryStats; //To track information
    
-
-   unsigned int current_output;
-   unsigned int output_size; 
-
-   unsigned int current_output_iteration;
-   unsigned int output_size_iteration;
-
-   //For stats
-   unsigned int n_ones_sta_matrix;
-   unsigned int n_ones_str_matrix;
-   std::vector<Connection*> write_port_connections; 
-   cycles_t local_cycle;
-   SDMemoryStats sdmemoryStats; //To track information
-   
-   //Aux functions
-   void receive();
-   void send();
-   void sendPackageToInputFifos(DataPackage* pck);
-   std::vector<Connection*> getWritePortConnections()    const {return this->write_port_connections;}
+    //Aux functions
+    void receive();
+    void send();
+    void sendPackageToInputFifos(DataPackage* pck);
+    std::vector<Connection*> getWritePortConnections()    const {return this->write_port_connections;}
     
     
 public:
@@ -149,6 +149,36 @@ public:
     void setMultiplierNetwork(MultiplierNetwork* multiplier_network) {this->multiplier_network = multiplier_network;}
     void printStats(std::ofstream& out, unsigned int indent);
     void printEnergy(std::ofstream& out, unsigned int indent);
+    bool doLoad(uint64_t addr, DataPackage* data_package)
+    {
+        SimpleMem::Request* req = new SimpleMem::Request(SimpleMem::Request::Read, addr, this->data_width);
+        SST_STONNE::LSEntry* tempEntry = new SST_STONNE::LSEntry( req->id, data_package, 0 );
+        load_queue_->addEntry( tempEntry );
+        if (mem_interface_) {
+            mem_interface_->sendRequest( req );
+        } else {
+            std::cerr << "meminterface is not set!\n";
+        }
+        return 1;
+    }
+    bool doStore(uint64_t addr, DataPackage* data_package)
+    {
+        SimpleMem::Request* req = new SimpleMem::Request(SimpleMem::Request::Write, addr, 4);
+        const auto newValue = data_package->get_data();
+        constexpr auto size = sizeof(uint32_t);
+        uint8_t buffer[size] = {};
+        std::memcpy(buffer, std::addressof(newValue), size);
+    
+        std::vector< uint8_t > payload(4);
+        memcpy( std::addressof(payload[0]), std::addressof(newValue), size );
+        req->setPayload( payload );
+    
+        SST_STONNE::LSEntry* tempEntry = new SST_STONNE::LSEntry( req->id, data_package, 1);
+        write_queue_->addEntry( tempEntry );
+        if (mem_interface_)
+            mem_interface_->sendRequest( req );
+        return 1;
+    }
 };
 
 

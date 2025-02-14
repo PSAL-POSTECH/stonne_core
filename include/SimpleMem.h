@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <cstdint>
+#include <queue>
 #include <iostream>
 #include <map>
 
@@ -24,6 +25,7 @@ public:
 
         // Getter functions
         Command getcmd() const { return cmd; }
+        void setReply();
         uint64_t getAddress() const { return addr; }
         uint64_t getEndAddress() const { return addr + size; }
         size_t getSize() const { return size; }
@@ -45,9 +47,11 @@ public:
     void init(int phase);
     void sendInitData(Request* req);
     void sendRequest(Request* req);
+    Request* popRequest();
 
 protected:
     std::map<uint64_t, uint8_t> dataArray;
+    std::queue<Request*> request_queue;
 };
 
 #endif // SIMPLEMEM_H

@@ -11,6 +11,7 @@ Config::Config() {
     this->reset();
 }
 Config::Config(std::string config_file) {
+    this->reset();
     loadFile(config_file);
 }
 

@@ -77,7 +77,8 @@ public:
     void finish();
     bool isFinished() { return stonne_instance->isExecutionFinished(); }
     void init( uint32_t phase );
-    void handleEvent( SimpleMem::Request* ev );
+    void pushResponse( SimpleMem::Request* ev );
+    SimpleMem::Request* popRequest() { return mem_interface_->popRequest(); }
     //void Status();
     void cycle();
     void printStats() { stonne_instance->printStats(); }
