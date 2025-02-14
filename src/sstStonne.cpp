@@ -66,9 +66,9 @@ void sstStonne::setup(StonneOpDesc operation) {
     bitmapMatrixBFileName = opDesc.bitmap_matrix_b_init;
 
     rowpointerMatrixAFileName = opDesc.rowpointer_matrix_a_init;
-    colpointerMatrixAFileName = opDesc.rowpointer_matrix_a_init;
-    rowpointerMatrixBFileName = opDesc.rowpointer_matrix_a_init;
-    colpointerMatrixBFileName = opDesc.rowpointer_matrix_a_init;
+    colpointerMatrixAFileName = opDesc.colpointer_matrix_a_init;
+    rowpointerMatrixBFileName = opDesc.rowpointer_matrix_b_init;
+    colpointerMatrixBFileName = opDesc.colpointer_matrix_b_init;
 
     if((opDesc.operation==CONV) || (opDesc.operation==GEMM)) { //Initializing dense operation
         switch(opDesc.operation) {
@@ -141,7 +141,7 @@ void sstStonne::setup(StonneOpDesc operation) {
             rowpointerMatrixB = new unsigned int[matrixB_size+1];
             colpointerMatrixB = new unsigned int[matrixB_size+1];
 
-            unsigned int nValuesRowPointerA=constructCSRStructure(rowpointerMatrixAFileName,rowpointerMatrixA);
+            unsigned int nValuesRowPointerA=constructCSRStructure(rowpointerMatrixAFileName, rowpointerMatrixA);
             unsigned int nValuesColPointerA=constructCSRStructure(colpointerMatrixAFileName, colpointerMatrixA);
 
             unsigned int nValuesRowPointerB=constructCSRStructure(rowpointerMatrixBFileName, rowpointerMatrixB);

@@ -79,7 +79,7 @@ OuterLoopSpGEMMSDMemory::OuterLoopSpGEMMSDMemory(id_t id, std::string name, Conf
     this->sort_sub_block_id = 0;
     this->sort_num_blocks = 0;
     for(int i=0; i<this->num_ms; i++) {
-        vnat_table.push_back(-1); //Initializing table with rows of sta data 
+        vnat_table.push_back(-1); //Initializing table with rows of sta data
     ms_group.push_back(-1);
     }
     this->n_values_stored=0;
@@ -96,13 +96,13 @@ OuterLoopSpGEMMSDMemory::~OuterLoopSpGEMMSDMemory() {
         delete input_fifos[i];
         delete psum_fifos[i];
     }
-    
+
 
 }
 
 void OuterLoopSpGEMMSDMemory::setWriteConnections(std::vector<Connection*> write_port_connections) {
-    this->write_port_connections=write_port_connections; //Copying all the poiners 
-    //assert(this->write_port_connections.size()==this->n_write_ports); 
+    this->write_port_connections=write_port_connections; //Copying all the poiners
+    //assert(this->write_port_connections.size()==this->n_write_ports);
 }
 
 void OuterLoopSpGEMMSDMemory::setReadConnections(std::vector<Connection*> read_connections) {
@@ -114,7 +114,7 @@ void OuterLoopSpGEMMSDMemory::setReadConnections(std::vector<Connection*> read_c
 void OuterLoopSpGEMMSDMemory::setLayer(DNNLayer* dnn_layer, address_t MK_address, address_t KN_address, address_t output_address, Dataflow dataflow) {
     this->dnn_layer = dnn_layer;
     assert(this->dnn_layer->get_layer_type()==SPARSE_DENSE);  // This controller only supports GEMM with one sparse and one dense
-    //this->dataflow = dataflow; 
+    //this->dataflow = dataflow;
 
     this->output_address = output_address;
     this->layer_loaded = true;
@@ -127,14 +127,14 @@ void OuterLoopSpGEMMSDMemory::setLayer(DNNLayer* dnn_layer, address_t MK_address
     this->N = this->dnn_layer->get_K();  //In this case both parameters match each other.
     this->intermediate_memory = new std::vector<std::queue<DataPackage*>> [this->M]; //Number of rows
     //this->swap_memory = new std::vector<std::queue<DataPackage*>>;
-    sdmemoryStats.dataflow=dataflow; 
-    
+    sdmemoryStats.dataflow=dataflow;
+
     this->MK_address = MK_address;
     this->KN_address = KN_address;
 
 
-  //  this->output_size = dim_sta*dim_str;
-      this->output_size = M*N;
+    //  this->output_size = dim_sta*dim_str;
+    this->output_size = M*N;
 
 
 }
@@ -163,83 +163,77 @@ void OuterLoopSpGEMMSDMemory::cycle() {
     this->local_cycle+=1;
     this->sdmemoryStats.total_cycles++; //To track information
     while(load_queue_->getNumCompletedEntries() > 0) {
-      uint32_t req_id = load_queue_->getNextCompletedEntry();
-      DataPackage* pck = load_queue_->getEntryPackage(req_id);
-      load_queue_->removeEntry(req_id);
-      this->sendPackageToInputFifos(pck); //Sending the package
-
+        uint32_t req_id = load_queue_->getNextCompletedEntry();
+        DataPackage* pck = load_queue_->getEntryPackage(req_id);
+        load_queue_->removeEntry(req_id);
+        this->sendPackageToInputFifos(pck); //Sending the package
     }
 
     //Processing write memory requests
     while(write_queue_->getNumCompletedEntries() > 0) {
-      uint32_t req_id = write_queue_->getNextCompletedEntry();
-      DataPackage* pck = write_queue_->getEntryPackage(req_id);
-      write_queue_->removeEntry(req_id);
-      data_t data = pck->get_data();
-      uint64_t addr = pck->get_address();
-      addr = addr - this->output_dram_location; //To access to the array. If we remove the array feature this is no longer necessary
-      addr = addr / this->data_width;
-      this->output_address[addr]=data;
-      delete pck;
+        uint32_t req_id = write_queue_->getNextCompletedEntry();
+        DataPackage* pck = write_queue_->getEntryPackage(req_id);
+        write_queue_->removeEntry(req_id);
+        data_t data = pck->get_data();
+        uint64_t addr = pck->get_address();
+        addr = addr - this->output_dram_location; //To access to the array. If we remove the array feature this is no longer necessary
+        addr = addr / this->data_width;
+        this->output_address[addr]=data;
+        delete pck;
     }
 
     if((load_queue_->getNumPendingEntries() == 0) ){ //&& (write_queue_->getNumPendingEntries() < this->n_write_mshr)) {
 
     if(current_state==CONFIGURING)
     {    //Initialize these for the first time
-     this->n_str_data_received = 0;
-     this->n_str_data_sent = 0;
-     this->current_KN = 0;
-    
-     Tile* tile1 = new Tile(1, 1, 1, this->num_ms, 1, 1, 1, 1, false);
-     this->tile = tile1;
-     this->multiplier_network->resetSignals();
-     //this->reduce_network->resetSignals();
-    this->multiplier_network->configureSignals(tile1, this->dnn_layer, this->num_ms, 1,PSUM_GENERATION ); //TODO double check
-    //Cleaning the table to keep the index of each vector
-    for(int i=0; i<this->num_ms; i++) {
+        this->n_str_data_received = 0;
+        this->n_str_data_sent = 0;
+        this->current_KN = 0;
+
+        Tile* tile1 = new Tile(1, 1, 1, this->num_ms, 1, 1, 1, 1, false);
+        this->tile = tile1;
+        this->multiplier_network->resetSignals();
+        //this->reduce_network->resetSignals();
+        this->multiplier_network->configureSignals(tile1, this->dnn_layer, this->num_ms, 1,PSUM_GENERATION ); //TODO double check
+        //Cleaning the table to keep the index of each vector
+        for(int i=0; i<this->num_ms; i++) {
             ms_group[i]=-1;
         }
-
-    std::cout << "Computing column " << current_MK_col_pointer << "/" << K << std::endl;
-
+        std::cout << "Computing column " << current_MK_col_pointer << "/" << K << std::endl;
     //this->reduce_network->configureSignals(tile1, this->dnn_layer, this->num_ms, this->iter_K);
     }
     if(current_state == DIST_STA_MATRIX) {
-       //Distribution of the stationary matrix
-       //Sending unitcast message with each value in MK matrix
-               multipliers_used = 0;
-               for(int i=0; i<this->num_ms; i++) {
-               //Accessing to the next value
-                   int col = current_MK_col_pointer;
-           int row = MK_row_id[current_MK_row_id];
-           multipliers_used++;
-           //Sending package
-           vnat_table[i]=col; //To find out the row of mstrix KN. 
-           uint64_t new_addr = input_dram_location + current_MK_row_id*this->data_width;
-           data_t data = 0.0;
-           DataPackage* pck_to_send = new DataPackage(sizeof(data_t), data, WEIGHT, i, UNICAST, i, row, col);
-           doLoad(new_addr, pck_to_send);
-           this->sdmemoryStats.n_SRAM_weight_reads++;
-           //std::cout << "[Cycle " << this->local_cycle << "] Sending data with value " << data << std::endl;
-           //Update variables
-           current_MK_row_id++;
-           if(current_MK_row_id >= MK_col_pointer[current_MK_col_pointer+1]) {
-                       current_MK_col_pointer+=1; 
-           } 
+        //Distribution of the stationary matrix
+        //Sending unitcast message with each value in MK matrix
+        multipliers_used = 0;
+        for(int i=0; i<this->num_ms; i++) {
+            //Accessing to the next value
+            int col = current_MK_col_pointer;
+            int row = MK_row_id[current_MK_row_id];
+            multipliers_used++;
+            //Sending package
+            vnat_table[i]=col; //To find out the row of mstrix KN.
+            uint64_t new_addr = input_dram_location + current_MK_row_id*this->data_width;
+            data_t data = 0.0;
+            DataPackage* pck_to_send = new DataPackage(sizeof(data_t), data, WEIGHT, i, UNICAST, i, row, col);
+            doLoad(new_addr, pck_to_send);
+            this->sdmemoryStats.n_SRAM_weight_reads++;
+            //std::cout << "[Cycle " << this->local_cycle << "] Sending data with value " << data << std::endl;
+            //Update variables
+            current_MK_row_id++;
+            if(current_MK_row_id >= MK_col_pointer[current_MK_col_pointer+1]) {
+                       current_MK_col_pointer+=1;
+            }
 
-           if(current_MK_col_pointer == K) {
-               //this->execution_finished=true; //The execution finishes here
-               this->last_sta_iteration_completed = true;
-                       break;
-           }
+            if(current_MK_col_pointer == K) {
+                //this->execution_finished=true; //The execution finishes here
+                this->last_sta_iteration_completed = true;
+                break;
+            }
 
-           } 
-           this->STA_complete=true;
-       
+        }
+        this->STA_complete=true;
        //}
-       
-    
     }
 
     else if(current_state == DIST_STR_MATRIX) {//Dense matrix
@@ -259,11 +253,11 @@ void OuterLoopSpGEMMSDMemory::cycle() {
         doLoad(new_addr, pck_to_send);
         this->sdmemoryStats.n_SRAM_input_reads++;
 
-                
+
         }
     }
     this->current_KN+=1;
-    
+
 
     if(!found) {
            STR_complete = true;
@@ -322,7 +316,7 @@ void OuterLoopSpGEMMSDMemory::cycle() {
                 if(this->sort_row_id == this->M) {
                         this->sort_down_last_iteration_finished = true;
                 std::cout << "ALL THE ELEMENTS HAVE BEEN STREAMED DOWN" << std::endl;
-                    } 
+                    }
         }
         }
 
@@ -332,20 +326,20 @@ void OuterLoopSpGEMMSDMemory::cycle() {
 
 
     }
-      
-            
-    } //End if there is no pending requests    
+
+
+    } //End if there is no pending requests
     //Receiving output data from write_connection
     this->receive();
     if(!write_fifo->isEmpty()) {
-      for(int i=0; i<write_fifo->size(); i++) { 
+      for(int i=0; i<write_fifo->size(); i++) {
       DataPackage* pck_received = write_fifo->pop();
 
       if((current_state == RECEIVING_SORT_TREE_UP) || (current_state == SENDING_SORT_TREE_DOWN)) {
       this->sort_up_received_first_value = true;
     //  this->output_address[pck_received->getRow()*this->N+n_str_data_received] = pck_received->get_data();
       if(this->sorting_iterations > 1) {
-              //If there are more than 1 iterations, we have to keep the data in the intermediate memory 
+              //If there are more than 1 iterations, we have to keep the data in the intermediate memory
           int group = pck_received->get_source();
           if(pointer_next_memory->size() == group) { //We have to create the space if a new group of psums are coming
           std::queue<DataPackage*> new_group;
@@ -410,12 +404,12 @@ void OuterLoopSpGEMMSDMemory::cycle() {
                           this->swap_memory_enabled = !this->swap_memory_enabled;
                   //Cleaning the current source memory which will be destination in the next iteration
                   pointer_current_memory->clear();
-                        
+
               }
 
               //else {
                       //    this->swap_memory_enabled = false;
-              //} 
+              //}
 
           }
 
@@ -464,8 +458,8 @@ void OuterLoopSpGEMMSDMemory::cycle() {
           else {
                   current_state=CONFIGURING;
           }
-    } 
-    
+    }
+
     }
 
     else if(current_state == CONFIGURING_SORTING_PSUMS_DOWN) {
@@ -491,11 +485,11 @@ void OuterLoopSpGEMMSDMemory::cycle() {
 
 
     //else if(current_state==WAITING_FOR_NEXT_STA_ITER) {
-        
+
     //}  //This state is modified when receiving data
 
     else if(current_state==ALL_DATA_SENT) {
-    
+
 
 //    if(current_M>=this->M) {
         //Calculating sparsity values  and some final stats
@@ -509,7 +503,7 @@ void OuterLoopSpGEMMSDMemory::cycle() {
 
     }
 
-   
+
 
     this->send();
 }
@@ -529,29 +523,29 @@ void OuterLoopSpGEMMSDMemory::sendPackageToInputFifos(DataPackage* pck) {
             //Sending the replica to the suitable fifo that correspond with the port
             if(pck->get_data_type() == PSUM) { //Actually a PSUM cannot be broadcast. But we put this for compatibility
                 psum_fifos[i]->push(pck_new);
-            }          
+            }
             else {  //INPUT OR WEIGHT
                 //Seting iteration of the package
                 pck_new->setIterationK(pck->getIterationK()); //Used to avoid sending packages from a certain iteration without performing the previous.
                 input_fifos[i]->push(pck_new);
-            }     
-           
+            }
+
         }
     }
 
     // UNICAST PACKAGE
     else if(pck->isUnicast()) {
         //We only have to send the weight to one port and change the destination to adapt it to the subgroup
-        unsigned int dest = pck->get_unicast_dest(); //This is according to ALL the mswitches. 
+        unsigned int dest = pck->get_unicast_dest(); //This is according to ALL the mswitches.
         unsigned int input_port = dest / this->ms_size_per_input_port;
         unsigned int local_dest = dest % this->ms_size_per_input_port;
-        //Creating the package 
+        //Creating the package
         DataPackage* pck_new = new DataPackage(pck->get_size_package(), pck->get_data(), pck->get_data_type(), pck->get_source(), UNICAST, local_dest, pck->getRow(), pck->getCol()); //size, data, type, source (port), UNICAST, dest_local
         //Sending to the fifo corresponding with port input_port
         if(pck->get_data_type() == PSUM) { //Actually a PSUM cannot be broadcast. But we put this for compatibility
             psum_fifos[input_port]->push(pck_new);
         //std::cout << "Sending to the port " << input_port << std::endl;
-        }          
+        }
         else {  //INPUT OR WEIGHT
             input_fifos[input_port]->push(pck_new);
             pck_new->setIterationK(pck->getIterationK());
@@ -559,7 +553,7 @@ void OuterLoopSpGEMMSDMemory::sendPackageToInputFifos(DataPackage* pck) {
 
     }
 
-    //MULTICAST PACKAGE 
+    //MULTICAST PACKAGE
     else { //The package is multicast and then we have to send the package to several ports
         const bool* dest = pck->get_dests();  //One position for mswitch in all the msarray
         bool thereis_receiver;
@@ -575,15 +569,15 @@ void OuterLoopSpGEMMSDMemory::sendPackageToInputFifos(DataPackage* pck) {
             }
 
             if(thereis_receiver) { //If this port have at least one ms to true then we send the data to this port i
-                DataPackage* pck_new = new DataPackage(pck->get_size_package(), pck->get_data(), pck->get_data_type(), pck->get_source(), MULTICAST, local_dest, this->ms_size_per_input_port, pck->getRow(), pck->getCol()); 
+                DataPackage* pck_new = new DataPackage(pck->get_size_package(), pck->get_data(), pck->get_data_type(), pck->get_source(), MULTICAST, local_dest, this->ms_size_per_input_port, pck->getRow(), pck->getCol());
                 if(pck->get_data_type() == PSUM) {
                     psum_fifos[i]->push(pck_new);
                 }
- 
+
                 else {
                     pck_new->setIterationK(pck->getIterationK());
                     input_fifos[i]->push(pck_new);
-                    
+
                 }
             }
             else {
@@ -593,13 +587,13 @@ void OuterLoopSpGEMMSDMemory::sendPackageToInputFifos(DataPackage* pck) {
     }
 
     delete pck; // We have created replicas of the package for the ports needed so we can delete this
-} 
+}
 
 void OuterLoopSpGEMMSDMemory::send() {
     //Iterating over each port and if there is data in its fifo we send it. We give priority to the psums
 
     for(int i=0; i<(this->n_read_ports); i++) {
-        std::vector<DataPackage*> pck_to_send; 
+        std::vector<DataPackage*> pck_to_send;
         if(!this->psum_fifos[i]->isEmpty()) { //If there is something we may send data though the connection
             DataPackage* pck = psum_fifos[i]->pop();
 #ifdef DEBUG_MEM_INPUT
@@ -613,27 +607,27 @@ void OuterLoopSpGEMMSDMemory::send() {
         //If psums fifo is empty then input fifo is checked. If psum is not empty then else do not compute. Important this ELSE to give priority to the psums and do not send more than 1 pck
         else if(!this->input_fifos[i]->isEmpty()) {
             //If the package belongs to a certain k iteration but the previous k-1 iteration has not finished the package is not sent
-            DataPackage* pck = input_fifos[i]->front(); //Front because we are not sure if we have to send it. 
-           
+            DataPackage* pck = input_fifos[i]->front(); //Front because we are not sure if we have to send it.
+
             if(pck->get_data_type()==WEIGHT) {
                 this->sdmemoryStats.n_SRAM_read_ports_weights_use[i]++; //To track information
 #ifdef DEBUG_MEM_INPUT
                 std::cout << "[MEM_INPUT] Cycle " << local_cycle << ", Sending a WEIGHT through input port " << i << std::endl;
 #endif
-            }  
+            }
             else {
                 this->sdmemoryStats.n_SRAM_read_ports_inputs_use[i]++; //To track information
 #ifdef DEBUG_MEM_INPUT
                 std::cout << "[MEM_INPUT] Cycle " << local_cycle << ", Sending an INPUT ACTIVATION through input port " << i << std::endl;
 #endif
             }
-                pck_to_send.push_back(pck); //storing into the vector data type structure used in class Connection 
+                pck_to_send.push_back(pck); //storing into the vector data type structure used in class Connection
                 this->read_connections[i]->send(pck_to_send); //Sending the input or weight through the connection
             input_fifos[i]->pop(); //pulling from fifo
-            
+
 
         }
-            
+
     }
 
 
@@ -653,7 +647,7 @@ void OuterLoopSpGEMMSDMemory::receive() { //TODO control if there is no space in
              for(int i=0; i<data_received.size(); i++) {
                  write_fifo->push(data_received[i]);
              }
-        }    
+        }
     }
 }
 
@@ -677,5 +671,5 @@ void OuterLoopSpGEMMSDMemory::printEnergy(std::ofstream& out, unsigned int inden
    counter_t writes = this->sdmemoryStats.n_SRAM_psum_writes;
    out << ind(indent) << "GLOBALBUFFER READ=" << reads; //Same line
    out << ind(indent) << " WRITE=" << writes << std::endl;
-        
+
 }
