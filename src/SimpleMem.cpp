@@ -41,7 +41,6 @@ void SimpleMem::sendRequest(Request* req) {
     uint64_t addr = req->getAddress();
     switch (req->getcmd()) {
         case Request::Command::Read:
-            std::cout << "[Read] Processing request at address " << req->getAddress() << std::endl;
             //for (uint64_t offset=0; offset<req->getSize(); offset++) {
             //    //if (dataArray.find(addr+offset) == dataArray.end()) {
             //    //    dataArray[addr+offset] = 0;
@@ -51,7 +50,6 @@ void SimpleMem::sendRequest(Request* req) {
             request_queue.push(req);
             break;
         case Request::Command::Write:
-            std::cout << "[Write] Processing request at address " << req->getAddress() << std::endl;
             //for (uint64_t offset=0; offset<req->getSize(); offset++)
             //    dataArray[addr+offset] = req->getData().at(offset);
             request_queue.push(req);
@@ -69,7 +67,6 @@ SimpleMem::Request* SimpleMem::popRequest() {
         return NULL;
     }
     auto req = request_queue.front();
-    std::cout<<"popRequest addr: " << req->getAddress() <<"\n";
     request_queue.pop();
     return req;
 }

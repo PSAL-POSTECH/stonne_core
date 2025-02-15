@@ -23,7 +23,7 @@ SparseFlex_ASNetwork::SparseFlex_ASNetwork(id_t id, std::string name, Config sto
     unsigned int as_id = 0;
     for(int i=0; i < this->nlevels; i++) {  //From root to leaves (without the MSs)
         for(int j=0; j < adders_this_level; j++) { // From left to right of the structure
-            std::string as_str="SparseFlex_ASwitch "+as_id;
+            std::string as_str="SparseFlex_ASwitch " + std::to_string(as_id);
             SparseFlex_ASwitch* as = new SparseFlex_ASwitch(as_id, as_str, i, j, stonne_cfg);
             as_id+=1; //increasing the as id 
             std::pair<int, int> levelandnum (i,j);
@@ -148,7 +148,7 @@ void SparseFlex_ASNetwork::setMemoryConnections(std::vector<std::vector<Connecti
         SparseFlex_ASwitch* as_second = double_switches[i+1];
         assert(busID < memoryConnections.size()); //Making sure the CollectionBus returns the correct busLine
         assert((inputID+1) < memoryConnections[busID].size()); //Making sure the CollectionBus returns the correct busLine
-        std::cout << "SIZE: " << memoryConnections[busID].size() << std::endl;
+        //std::cout << "SIZE: " << memoryConnections[busID].size() << std::endl;
         Connection* mem_conn_first = memoryConnections[busID][inputID]; //Connecting as i to busID, inputID connection
         Connection* mem_conn_second = memoryConnections[busID][inputID+1];
     if(this->accumulation_buffer_enabled==0)  { //If the accumulation buffer is not enabled
@@ -168,8 +168,8 @@ void SparseFlex_ASNetwork::setMemoryConnections(std::vector<std::vector<Connecti
 
     }
     connectionID+=2;
-        std::cout << "SparseFlex_ASwitch " << as_first->getLevel() << ":" << as_first->getNumInLevel() << " connected to BUS " << busID << " INPUT " << inputID << std::endl;
-        std::cout << "SparseFlex_ASwitch " << as_second->getLevel() << ":" << as_second->getNumInLevel() << " connected to BUS " << busID << " INPUT " << inputID+1 << std::endl;
+    //std::cout << "SparseFlex_ASwitch " << as_first->getLevel() << ":" << as_first->getNumInLevel() << " connected to BUS " << busID << " INPUT " << inputID << std::endl;
+    //std::cout << "SparseFlex_ASwitch " << as_second->getLevel() << ":" << as_second->getNumInLevel() << " connected to BUS " << busID << " INPUT " << inputID+1 << std::endl;
 
 
 

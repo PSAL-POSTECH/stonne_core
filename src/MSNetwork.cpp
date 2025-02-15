@@ -18,7 +18,7 @@ MSNetwork::MSNetwork(id_t id, std::string name, Config stonne_cfg) : MultiplierN
     //End of extracting the input parameters
 
     for(int i = 0; i < ms_size; i++) {
-        std::string ms_str="MSwitch "+i;
+        std::string ms_str="MSwitch "+std::to_string(i);
         MSwitch* ms = new MSwitch(i, ms_str, i, stonne_cfg); //Creating the MSwitches
         this->mswitchtable[i] = ms; 
     }

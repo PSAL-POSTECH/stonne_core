@@ -422,7 +422,6 @@ void GustavsonsSpGEMMSDMemory::cycle() {
           this->sort_up_received_first_value=false;
               if(this->last_sta_iteration_completed && (this->sorting_iterations == 1)) { //If the last iteration has been streamed down before
                   this->execution_finished = true;
-                  std::cout << "The execution has finished" << std::endl;
           this->sort_up_iteration_finished = true;
               }
 

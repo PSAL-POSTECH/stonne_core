@@ -17,7 +17,7 @@ DSNetworkTop::DSNetworkTop(id_t id, std::string name, Config stonne_cfg) : Distr
         //Creating the top connection first
         Connection* conn = new Connection(this->port_width);
         //Creating the tree
-        std::string name = "ASNetworkTree "+i; 
+        std::string name = "ASNetworkTree "+ std::to_string(i); 
         DSNetwork* dsnet = new DSNetwork(i,name, stonne_cfg, this->ms_size_per_port, conn); //Creating the dsnetwork with the connection
         connections.push_back(conn);
         dsnetworks.push_back(dsnet);
