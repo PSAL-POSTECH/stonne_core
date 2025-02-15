@@ -31,7 +31,7 @@ public:
     //Used to configure the MultiplierNetwork according to the controller if needed
     virtual void setMultiplierNetwork(MultiplierNetwork* multiplier_network) {assert(false);} 
     virtual void cycle() {assert(false);}
-    virtual bool isExecutionFinished() {assert(false);}
+    virtual bool isExecutionFinished() {assert(false); return false; }
     virtual void setDenseSpatialData(unsigned int T_N, unsigned int T_K){assert(false);}
     virtual void setSparseMatrixMetadata(metadata_address_t MK_metadata_id, metadata_address_t MK_metadata_pointer){assert(false);}
     virtual void setSparseMatrixMetadata(metadata_address_t MK_metadata_id, metadata_address_t MK_metadata_pointer, metadata_address_t KN_metadata_id, metadata_address_t KN_metadata_pointer) {assert(false);}

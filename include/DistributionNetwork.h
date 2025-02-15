@@ -24,11 +24,11 @@ public:
     //This just executes cycle over all the dsnetworks
     virtual void cycle() {assert(false);} 
     //Get last levels connections together. Useful to connect with mswitches later.
-    virtual std::map<int, Connection*> getLastLevelConnections() {assert(false);} 
+    virtual std::map<int, Connection*> getLastLevelConnections()=0;
     // Get the top connections (i.e., the ones that connect the SDMemory ports)
-    virtual std::vector<Connection*> getTopConnections() {assert(false);} 
-    virtual void printStats(std::ofstream& out, unsigned int indent) {assert(false);}
-    virtual void printEnergy(std::ofstream& out, unsigned int indent) {assert(false);}
+    virtual std::vector<Connection*> getTopConnections()=0;
+    virtual void printStats(std::ofstream& out, unsigned int indent)=0;
+    virtual void printEnergy(std::ofstream& out, unsigned int indent)=0;
 
 };
 
