@@ -135,7 +135,7 @@ void MSNetwork::nWindowsConfig(unsigned int n_windows) {
     }
 }
 
-void MSNetwork::configureSignals(Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_size, unsigned int n_folding) {
+void MSNetwork::configureSignals(STONNE_Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_size, unsigned int n_folding) {
     CompilerMSN* compiler_msn = new CompilerMSN();
     compiler_msn->configureSignals(current_tile, dnn_layer, ms_size, n_folding);
     std::map<unsigned int, unsigned int> ms_vn_signals = compiler_msn->get_ms_vn_configuration();

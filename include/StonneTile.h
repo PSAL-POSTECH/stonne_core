@@ -31,8 +31,7 @@ public:
  This class represent a tile 
 */
 
-
-class Tile {
+class STONNE_Tile{
 private:
     unsigned int T_R;         // Number of filter rows
     unsigned int T_S;         // Number of filter columns
@@ -48,9 +47,9 @@ private:
 
    
 public:
-    Tile(unsigned int T_R, unsigned int T_S, unsigned int T_C, unsigned int T_K, unsigned int T_G,  unsigned int T_N, unsigned int T_X_, unsigned int T_Y_, bool folding); //Used by the architecture
+    STONNE_Tile(unsigned int T_R, unsigned int T_S, unsigned int T_C, unsigned int T_K, unsigned int T_G,  unsigned int T_N, unsigned int T_X_, unsigned int T_Y_, bool folding); //Used by the architecture
 
-    Tile(std::string tile_file); //Used by some external front-end to get the tile values from an input file.
+    STONNE_Tile(std::string tile_file); //Used by some external front-end to get the tile values from an input file.
 
     //Signals generation
     void generate_signals(int num_ms);
@@ -71,11 +70,7 @@ public:
     bool get_folding_enabled()         const {return this->folding;} //Return whether this tile implies folding for the current configured network
   
     void printConfiguration(std::ofstream& out, unsigned int indent);
-     
-
-    
 };
-
 
 
 

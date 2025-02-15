@@ -55,7 +55,7 @@ public:
     void forwardingConfiguration(std::map<std::pair<int,int>, fl_t> fl_configurations); //Configure the forwarding links. Enable the required ones. 
     void childsLinksConfiguration(std::map<std::pair<int,int>, std::pair<bool,bool>> childs_configuration);
     void forwardingToMemoryConfiguration(std::map<std::pair<int,int>, bool> forwarding_to_memory_enabled);
-    void configureSignals(Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_size, unsigned int n_folding);
+    void configureSignals(STONNE_Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_size, unsigned int n_folding);
     void configureSignalsSortTree(adderconfig_t sort_configuration);
     void configureSparseSignals(std::vector<SparseVN> sparseVNs, DNNLayer* dnn_layer, unsigned int ms_size);
     void resetSignals();

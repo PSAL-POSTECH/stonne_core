@@ -4,7 +4,7 @@
 
 #include <list>
 #include <cstring>
-#include "Tile.h"
+#include "StonneTile.h"
 #include "Connection.h"
 #include "Fifo.h"
 #include "types.h"
@@ -22,7 +22,7 @@ class MemoryController : Unit {
 public:
     MemoryController(id_t id, std::string name) : Unit(id, name){}
     virtual void setLayer(DNNLayer* dnn_layer,  address_t input_address, address_t filter_address, address_t output_address, Dataflow dataflow) {assert(false);}
-    virtual void setTile(Tile* current_tile) {assert(false);}
+    virtual void setTile(STONNE_Tile* current_tile) {assert(false);}
     virtual void setReadConnections(std::vector<Connection*> read_connections) {assert(false);}
     virtual void setWriteConnections(std::vector<Connection*> write_port_connections) {assert(false);} //All the write connections must be set at a time
     virtual void setSparseMetadata(metadata_address_t MK_metadata, metadata_address_t KN_metadata, metadata_address_t output_metadata) {assert(false);}

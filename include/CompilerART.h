@@ -4,14 +4,14 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include "Tile.h"
+#include "StonneTile.h"
 #include <assert.h>
 #include "CompilerComponent.h"
 
 /* This class configure the signals for an ANEtwork following the steps presented in MAERI Paper. */
 class CompilerART : public CompilerComponent {
 private:
-   // Tile* current_tile;
+   // STONNE_Tile* current_tile;
    // unsigned int num_ms;
    // bool signals_configured;
 
@@ -43,9 +43,9 @@ public:
         signals_configured = false;
         dnn_layer=NULL;
     }
-    void configureSignals(Tile* current_tile, DNNLayer* dnn_layer,  unsigned int num_ms, unsigned int n_folding); //Print the stats of the component
+    void configureSignals(STONNE_Tile* current_tile, DNNLayer* dnn_layer,  unsigned int num_ms, unsigned int n_folding); //Print the stats of the component
     void configureSparseSignals(std::vector<SparseVN> sparseVNs, DNNLayer* dnn_layer, unsigned int num_ms);
-    Tile* getTile() {assert(signals_configured); return this->current_tile;}
+    STONNE_Tile* getTile() {assert(signals_configured); return this->current_tile;}
 
     //Get the signals
      std::map<std::pair<int,int>, adderconfig_t> get_switches_configuration() const {return this->switches_configuration;}

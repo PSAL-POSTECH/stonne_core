@@ -8,7 +8,7 @@
 #include "Unit.h"
 #include <iostream>
 #include "CompilerMSN.h"
-#include "Tile.h"
+#include "StonneTile.h"
 #include "DNNLayer.h"
 #include <assert.h>
 
@@ -27,9 +27,9 @@ public:
     //Set connections from the Multiplier Network to the Reduction Network
     virtual void setOutputConnections(std::map<int, Connection*> output_connections) {assert(false);}
     virtual void cycle() {assert(false);}
-    virtual void configureSignals(Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_size, unsigned int n_folding) {assert(false);}
+    virtual void configureSignals(STONNE_Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_size, unsigned int n_folding) {assert(false);}
     virtual void configureSparseSignals(std::vector<SparseVN> sparseVNs, DNNLayer* dnn_layer, unsigned int ms_size) {assert(false);}
-    virtual void configureSignals(Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_size, unsigned int n_folding, multiplierconfig_t multiplierconfig) {assert(false);}
+    virtual void configureSignals(STONNE_Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_size, unsigned int n_folding, multiplierconfig_t multiplierconfig) {assert(false);}
 
     virtual void resetSignals() {assert(false);}
     virtual void printConfiguration(std::ofstream& out, unsigned int indent) {assert(false);}

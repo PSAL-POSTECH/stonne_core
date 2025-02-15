@@ -54,7 +54,7 @@ public:
     void forwardingToFoldNodeConfiguration(std::map<std::pair<int,int>, bool> forwarding_to_fold_node_enabled);
     void NPSumsConfiguration(unsigned int n_psums);
 
-    void configureSignals(Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_size, unsigned int n_folding);
+    void configureSignals(STONNE_Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_size, unsigned int n_folding);
 
 
     //Cycle function

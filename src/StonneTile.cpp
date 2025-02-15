@@ -1,17 +1,16 @@
 //Created by Francisco Munoz Martinez on 26/06/2019
 
-#include "Tile.h"
 #include "utility.h"
 #include <math.h>
 #include "types.h"
 #include <assert.h>
 #include "cpptoml.h"
-
+#include "StonneTile.h"
 
 
 
 //Used to create a convolutional tile
-Tile::Tile(unsigned int T_R, unsigned int T_S, unsigned int T_C, unsigned int T_K, unsigned int T_G, unsigned int T_N, unsigned int T_X_, unsigned int T_Y_, bool folding) {
+STONNE_Tile::STONNE_Tile(unsigned int T_R, unsigned int T_S, unsigned int T_C, unsigned int T_K, unsigned int T_G, unsigned int T_N, unsigned int T_X_, unsigned int T_Y_, bool folding) {
     this->T_R = T_R;
     this->T_S = T_S; 
     this->T_C = T_C;
@@ -32,7 +31,7 @@ Tile::Tile(unsigned int T_R, unsigned int T_S, unsigned int T_C, unsigned int T_
     
 
 
-Tile::Tile(std::string tile_file) {
+STONNE_Tile::STONNE_Tile(std::string tile_file) {
     auto config = cpptoml::parse_file(tile_file); //Creating object to parse
     auto tile_type=config->get_as<std::string>("tile_type");
     auto T_R=config->get_as<int32_t>("T_R");
@@ -158,7 +157,7 @@ Tile::Tile(std::string tile_file) {
 
 
 
-void Tile::printConfiguration(std::ofstream& out, unsigned int indent) {
+void STONNE_Tile::printConfiguration(std::ofstream& out, unsigned int indent) {
     out << ind(indent) << "\"TileConfiguration\" : {" << std::endl;
         out << ind(indent+IND_SIZE) << "\"T_R\" : " << this->T_R << "," << std::endl;
         out << ind(indent+IND_SIZE) << "\"T_S\" : " << this->T_S << "," << std::endl;
@@ -175,8 +174,3 @@ void Tile::printConfiguration(std::ofstream& out, unsigned int indent) {
         
     out << ind(indent) << "}";
 }
-
-
-
-
-

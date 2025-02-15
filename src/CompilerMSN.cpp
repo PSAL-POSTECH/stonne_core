@@ -1,12 +1,12 @@
 #include "CompilerMSN.h"
-#include "Tile.h"
+#include "StonneTile.h"
 #include "utility.h"
 #include <math.h>
 #include "types.h"
 #include <assert.h>
 #include "cpptoml.h"
 
-void CompilerMSN::configureSignals(Tile* current_tile, DNNLayer* dnn_layer, unsigned int num_ms, unsigned int n_folding) {
+void CompilerMSN::configureSignals(STONNE_Tile* current_tile, DNNLayer* dnn_layer, unsigned int num_ms, unsigned int n_folding) {
     assert(ispowerof2(num_ms));
     assert(current_tile->get_VN_Size()*current_tile->get_Num_VNs() <= num_ms);
     this->current_tile = current_tile;

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include "Tile.h"
+#include "StonneTile.h"
 #include <assert.h>
 #include "CompilerComponent.h"
 
@@ -30,9 +30,9 @@ public:
         signals_configured = false;
         dnn_layer=NULL;
     }
-    void configureSignals(Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_rows, unsigned int ms_cols) ; 
+    void configureSignals(STONNE_Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_rows, unsigned int ms_cols) ; 
     void configureSparseSignals(std::vector<SparseVN> sparseVNs, DNNLayer* dnn_layer, unsigned int num_ms);
-    Tile* getTile() {assert(signals_configured); return this->current_tile;}
+    STONNE_Tile* getTile() {assert(signals_configured); return this->current_tile;}
 
     //Get the signals
     std::map<std::pair<int,int>, unsigned int> get_ms_vn_configuration() const {return this->ms_vn_configuration;}

@@ -166,7 +166,7 @@ void SparseFlex_MSNetwork::configureForwarderMode() {
 }
 
 
-void SparseFlex_MSNetwork::configureSignals(Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_size, unsigned int n_folding, multiplierconfig_t multiplierconfig) {
+void SparseFlex_MSNetwork::configureSignals(STONNE_Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_size, unsigned int n_folding, multiplierconfig_t multiplierconfig) {
     if(multiplierconfig == PSUM_GENERATION) {
         this->configurePartialGenerationMode(false); //The results will go to the memory directly as they do not need to merge
     } 

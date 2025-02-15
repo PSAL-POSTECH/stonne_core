@@ -2,7 +2,7 @@
 #define __SPARSEDENSESDMEMORY__H__
 
 #include <list>
-#include "Tile.h"
+#include "StonneTile.h"
 #include "Connection.h"
 #include "Fifo.h"
 #include "types.h"
@@ -150,7 +150,7 @@ public:
     SparseDenseSDMemory(id_t id, std::string name, Config stonne_cfg, Connection* write_connection, SST_STONNE::LSQueue* load_queue_, SST_STONNE::LSQueue* write_queue_, SimpleMem*  mem_interface_);
     ~SparseDenseSDMemory();
     void setLayer(DNNLayer* dnn_layer,  address_t KN_address, address_t MK_address, address_t output_address, Dataflow dataflow);
-    void setTile(Tile* current_tile) {assert(false);}
+    void setTile(STONNE_Tile* current_tile) {assert(false);}
     void setReadConnections(std::vector<Connection*> read_connections);
     void setWriteConnections(std::vector<Connection*> write_port_connections); //All the write connections must be set at a time
     void cycle();

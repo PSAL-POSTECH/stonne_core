@@ -7,7 +7,7 @@
 
 //The memory is ordered setting the channels in consecutive words in memory
 
-VNAT_Register::VNAT_Register(unsigned int VN, unsigned int addr, unsigned int N, unsigned int G, unsigned int K, unsigned int X, unsigned int Y,  unsigned int iter_N, unsigned int iter_G, unsigned int iter_K, unsigned int iter_X, unsigned int iter_Y, unsigned int iter_R, unsigned int iter_S, unsigned int iter_C, DNNLayer* dnn_layer, Tile* current_tile) {
+VNAT_Register::VNAT_Register(unsigned int VN, unsigned int addr, unsigned int N, unsigned int G, unsigned int K, unsigned int X, unsigned int Y,  unsigned int iter_N, unsigned int iter_G, unsigned int iter_K, unsigned int iter_X, unsigned int iter_Y, unsigned int iter_R, unsigned int iter_S, unsigned int iter_C, DNNLayer* dnn_layer, STONNE_Tile* current_tile) {
         this->VN = VN;
         this->base_addr = addr; //This address is always fixed since is the one use to make the calculation of next address easier.
         this->addr = addr; //This addr change over time
@@ -165,7 +165,7 @@ void SDMemory::setReadConnections(std::vector<Connection*> read_connections) {
     this->read_connections = read_connections; //Copying all the pointers
 }
 
-void SDMemory::setTile(Tile* current_tile) {
+void SDMemory::setTile(STONNE_Tile* current_tile) {
         //Calculating th enumber of iterations
     //assert(this->write_port_connections.size()==this->n_write_ports);
     this->iter_R = dnn_layer->get_R() / current_tile->get_T_R(); //Control the number of R iterations in the MemoryController

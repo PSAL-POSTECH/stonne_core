@@ -204,7 +204,7 @@ void GustavsonsSpGEMMSDMemory::cycle() {
      this->n_str_data_sent = 0;
      this->current_KN = 0;
     
-     Tile* tile1 = new Tile(1, 1, 1, this->num_ms, 1, 1, 1, 1, false);
+     STONNE_Tile* tile1 = new STONNE_Tile(1, 1, 1, this->num_ms, 1, 1, 1, 1, false);
      this->tile = tile1;
      this->multiplier_network->resetSignals();
      //this->reduce_network->resetSignals();

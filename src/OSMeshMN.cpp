@@ -138,7 +138,7 @@ std::map<std::pair<int,int>, MultiplierOS*> OSMeshMN::getMSwitches() {
 
 
 
-void OSMeshMN::configureSignals(Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_rows, unsigned int ms_cols) {
+void OSMeshMN::configureSignals(STONNE_Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_rows, unsigned int ms_cols) {
     CompilerMultiplierMesh* compiler = new CompilerMultiplierMesh();
     compiler->configureSignals(current_tile, dnn_layer, ms_rows, ms_cols);
     std::map<std::pair<int,int>, bool> forwarding_bottom_signals = compiler->get_forwarding_bottom_enabled();

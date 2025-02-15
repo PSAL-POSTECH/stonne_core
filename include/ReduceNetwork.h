@@ -13,7 +13,7 @@
 #include "CompilerComponent.h"
 #include "Connection.h"
 #include "Unit.h"
-#include "Tile.h"
+#include "StonneTile.h"
 #include "DNNLayer.h"
 
 class ReduceNetwork : public Unit{
@@ -23,7 +23,7 @@ public:
     virtual void setMemoryConnections(std::vector<std::vector<Connection*>> memoryConnections) {assert(false);} //Connect all the memory ports from buses (busID, lineID) to its corresponding switches
     virtual std::map<int, Connection*> getLastLevelConnections() {assert(false);}
     virtual void setOutputConnection(Connection* outputConnection)  {assert(false);} //This function set the outputConnection with the Prefetch buffer
-    virtual void configureSignals(Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_size, unsigned int n_folding) {assert(false);}
+    virtual void configureSignals(STONNE_Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_size, unsigned int n_folding) {assert(false);}
     virtual void configureSparseSignals(std::vector<SparseVN> sparseVNs, DNNLayer* dnn_layer, unsigned int ms_size) {assert(false);}
     virtual void configureSignalsSortTree(adderconfig_t sort_configuration) {assert(false);}
     virtual void resetSignals() {assert(false);}

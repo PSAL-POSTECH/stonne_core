@@ -7,7 +7,7 @@
 #include <chrono>
 #include "types.h"
 #include <vector>
-#include "Tile.h"
+#include "StonneTile.h"
 #include "utility.h"
 #include "Config.h"
 #include <time.h>
@@ -308,7 +308,7 @@ void Stonne::loadTile(unsigned int T_R, unsigned int T_S, unsigned int T_C, unsi
         // enough mswitches in the array to support the folding. 
         assert(this->ms_size >= ((T_R*T_S*T_C*T_K*T_G*T_N*T_X_*T_Y_) + (T_K*T_G*T_N*T_X_*T_Y_))); //We sum one mswitch per VN
     }
-    this->current_tile = new Tile(T_R, T_S, T_C, T_K, T_G, T_N, T_X_, T_Y_, folding_enabled);
+    this->current_tile = new STONNE_Tile(T_R, T_S, T_C, T_K, T_G, T_N, T_X_, T_Y_, folding_enabled);
     
     //Generating the signals for the reduceNetwork and configuring it. The asnet->configureSignals will call its corresponding compiler to generate the signals and allocate all of them
     if(this->stonne_cfg.m_MSNetworkCfg.multiplier_network_type != OS_MESH) { //IN TPU the configuration is done in the mem controller
@@ -487,8 +487,8 @@ void Stonne::testMemory(unsigned int num_ms) {
     
 }
 void Stonne::testTile(unsigned int num_ms) {
-    Tile* tile = new  Tile(3,1,1,2,1,1,1,1, false);
-    //Tile* tile = new Tile(CONV, 2,2,1,2,1,2,2,1);
+    STONNE_Tile* tile = new  STONNE_Tile(3,1,1,2,1,1,1,1, false);
+    //STONNE_Tile* tile = new STONNE_Tile(CONV, 2,2,1,2,1,2,2,1);
     //tile->generate_signals(num_ms);
     std::map<std::pair<int,int>, adderconfig_t> switches_configuration;// tile->get_switches_configuration();
     for(auto it=switches_configuration.begin(); it != switches_configuration.end(); ++it) {

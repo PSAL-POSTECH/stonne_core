@@ -48,7 +48,7 @@ private:
 
     //Software parameters
     DNNLayer* dnn_layer; 
-    Tile* current_tile;
+    STONNE_Tile* current_tile;
     bool layer_loaded; //Indicates if the function loadDNN
     bool tile_loaded; 
 

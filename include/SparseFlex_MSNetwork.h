@@ -12,7 +12,7 @@
 #include "Unit.h"
 #include <iostream>
 #include "CompilerMSN.h"
-#include "Tile.h"
+#include "StonneTile.h"
 #include "DNNLayer.h"
 #include "MultiplierNetwork.h"
 #include "Stats.h"
@@ -57,7 +57,7 @@ public:
     void setOutputConnections(std::map<int, Connection*> output_connections);
     //void setMemoryConnections(std::map<int, Connection*> memory_connections);
     void cycle(); 
-    void configureSignals(Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_size, unsigned int n_folding, multiplierconfig_t multiplierconfig);
+    void configureSignals(STONNE_Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_size, unsigned int n_folding, multiplierconfig_t multiplierconfig);
     void configureSparseSignals(std::vector<SparseVN> sparseVNs, DNNLayer* dnn_layer, unsigned int ms_size);
     void resetSignals(); 
     void printConfiguration(std::ofstream& out, unsigned int indent);

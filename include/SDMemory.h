@@ -3,7 +3,7 @@
 #define __SDMEMORY__H__
 
 #include <list>
-#include "Tile.h"
+#include "StonneTile.h"
 #include "Connection.h"
 #include "Fifo.h"
 #include "types.h"
@@ -43,12 +43,12 @@ public:
     unsigned int n_psums; //psums per window
     unsigned int current_psum;
     DNNLayer* dnn_layer;
-    Tile* current_tile;
+    STONNE_Tile* current_tile;
     bool finished;
   
    
     VNAT_Register(unsigned int VN, unsigned int addr, unsigned int N, unsigned int G, unsigned int K, unsigned int X, unsigned int Y,  
-    unsigned int iter_N, unsigned int iter_G, unsigned int iter_K, unsigned int iter_X, unsigned int iter_Y, unsigned int iter_R, unsigned int iter_S, unsigned int iter_C, DNNLayer* dnn_layer, Tile* current_tile);
+    unsigned int iter_N, unsigned int iter_G, unsigned int iter_K, unsigned int iter_X, unsigned int iter_Y, unsigned int iter_R, unsigned int iter_S, unsigned int iter_C, DNNLayer* dnn_layer, STONNE_Tile* current_tile);
     void update(); //Update variables to the next cycle 
     unsigned int get_address();
     
@@ -57,7 +57,7 @@ public:
 class SDMemory : public MemoryController {
 private:
     DNNLayer* dnn_layer; // Layer loaded in the accelerator
-    Tile* current_tile;  // Layer loaded in the tile
+    STONNE_Tile* current_tile;  // Layer loaded in the tile
     ReduceNetwork* reduce_network; //This is not used in this controller as the configuration is performed in STONNEModel when the tile is loaded, and this is needed just once
     MultiplierNetwork* multiplier_network; //Idem as reduce_network
     Connection* write_connection;
@@ -158,7 +158,7 @@ public:
     SDMemory(id_t id, std::string name, Config stonne_cfg, Connection* write_connection, SST_STONNE::LSQueue* load_queue_, SST_STONNE::LSQueue* write_queue_, SimpleMem*  mem_interface_);
     ~SDMemory();
     void setLayer(DNNLayer* dnn_layer,  address_t input_address, address_t filter_address, address_t output_address, Dataflow dataflow);
-    void setTile(Tile* current_tile);
+    void setTile(STONNE_Tile* current_tile);
     void setReadConnections(std::vector<Connection*> read_connections);
     void setWriteConnections(std::vector<Connection*> write_port_connections); //All the write connections must be set at a time
     void setSparseMetadata(metadata_address_t MK_metadata, metadata_address_t KN_metadata, metadata_address_t output_metadata) {assert(false);} //Not supported by this controller

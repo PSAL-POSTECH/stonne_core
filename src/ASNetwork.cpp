@@ -277,7 +277,7 @@ void ASNetwork::resetSignals() {
     }
 }
 
-void ASNetwork::configureSignals(Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_size, unsigned int n_folding) {
+void ASNetwork::configureSignals(STONNE_Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_size, unsigned int n_folding) {
     CompilerART* compiler_art = new CompilerART(); //Creating the object
     compiler_art->configureSignals(current_tile, dnn_layer, ms_size, n_folding);
     std::map<std::pair<int,int>,adderconfig_t> as_signals = compiler_art->get_switches_configuration();

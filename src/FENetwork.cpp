@@ -283,7 +283,7 @@ void FENetwork::forwardingToMemoryConfiguration(std::map<std::pair<int,int>, boo
     }
 }
 
-void FENetwork::configureSignals(Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_size, unsigned int n_folding) {
+void FENetwork::configureSignals(STONNE_Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_size, unsigned int n_folding) {
     CompilerFEN* compiler_fen = new CompilerFEN(); //Creating the object
     compiler_fen->configureSignals(current_tile, dnn_layer, ms_size, n_folding);  
     std::map<std::pair<int,int>,adderconfig_t> as_signals = compiler_fen->get_switches_configuration();

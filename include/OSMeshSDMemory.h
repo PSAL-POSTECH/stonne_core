@@ -2,7 +2,7 @@
 #define __OSMESHSDMEMORY__H__
 
 #include <list>
-#include "Tile.h"
+#include "StonneTile.h"
 #include "Connection.h"
 #include "Fifo.h"
 #include "types.h"
@@ -109,7 +109,7 @@ public:
     OSMeshSDMemory(id_t id, std::string name, Config stonne_cfg, Connection* write_connection);
     ~OSMeshSDMemory();
     void setLayer(DNNLayer* dnn_layer,  address_t KN_address, address_t MK_address, address_t output_address, Dataflow dataflow);
-    void setTile(Tile* current_tile);
+    void setTile(STONNE_Tile* current_tile);
     void setReadConnections(std::vector<Connection*> read_connections);
     void setWriteConnections(std::vector<Connection*> write_port_connections); //All the write connections must be set at a time
     void cycle();

@@ -12,7 +12,7 @@
 #include "Unit.h"
 #include <iostream>
 #include "CompilerMSN.h"
-#include "Tile.h"
+#include "StonneTile.h"
 #include "DNNLayer.h"
 #include "MultiplierNetwork.h"
 
@@ -52,7 +52,7 @@ public:
     //Set connections from the Multiplier Network to the Reduction Network
     void setOutputConnections(std::map<int, Connection*> output_connections);
     void cycle(); 
-    void configureSignals(Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_size, unsigned int n_folding);
+    void configureSignals(STONNE_Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_size, unsigned int n_folding);
     void configureSparseSignals(std::vector<SparseVN> sparseVNs, DNNLayer* dnn_layer, unsigned int ms_size);
     void resetSignals(); 
     void printConfiguration(std::ofstream& out, unsigned int indent);

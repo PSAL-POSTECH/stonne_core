@@ -11,7 +11,7 @@
 #include <map>
 #include "types.h"
 #include "Config.h"
-#include "Tile.h"
+#include "StonneTile.h"
 #include "DNNLayer.h"
 
 
@@ -32,7 +32,7 @@ public:
     void resetSignals();
     void NPSumsConfiguration(unsigned int n_psums);
 
-    void configureSignals(Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_size, unsigned int n_folding);
+    void configureSignals(STONNE_Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_size, unsigned int n_folding);
     //Cycle function
     void cycle();
     

@@ -1,12 +1,12 @@
 #include "CompilerMultiplierMesh.h"
-#include "Tile.h"
+#include "StonneTile.h"
 #include "utility.h"
 #include <math.h>
 #include "types.h"
 #include <assert.h>
 #include "cpptoml.h"
 
-void CompilerMultiplierMesh::configureSignals(Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_rows, unsigned int ms_cols) {
+void CompilerMultiplierMesh::configureSignals(STONNE_Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_rows, unsigned int ms_cols) {
     assert(current_tile->get_T_K() <= ms_cols); //Number of filters
     assert(current_tile->get_T_X_()*current_tile->get_T_Y_() <= ms_rows); //Number of conv windows
     this->current_tile = current_tile;

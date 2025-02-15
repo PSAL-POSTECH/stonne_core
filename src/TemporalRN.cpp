@@ -74,7 +74,7 @@ void TemporalRN::resetSignals() {
     this->accumulationBuffer->resetSignals();
 }
 
-void TemporalRN::configureSignals(Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_size, unsigned int n_folding) {
+void TemporalRN::configureSignals(STONNE_Tile* current_tile, DNNLayer* dnn_layer, unsigned int ms_size, unsigned int n_folding) {
     this->accumulationBuffer->configureSignals(current_tile, dnn_layer, ms_size, n_folding);
 
 } 

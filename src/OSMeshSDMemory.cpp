@@ -95,7 +95,7 @@ void OSMeshSDMemory::setLayer(DNNLayer* dnn_layer, address_t MK_address, address
 
 
 //Dense Tiles
-void OSMeshSDMemory::setTile(Tile* current_tile)
+void OSMeshSDMemory::setTile(STONNE_Tile* current_tile)
 {
     this->T_M = current_tile->get_T_X_(); //According to loadGemmTile function in STONNE the T_M gemm parameter is saved in T_K DNN parameter
     this->T_N = current_tile->get_T_K();
@@ -123,7 +123,7 @@ void OSMeshSDMemory::cycle() {
     unsigned int remaining_N = N - (current_N*T_N);
     this->cols_used = (remaining_N < T_N) ? remaining_N: T_N; //max(remaining_N, T_N) 
     this->rows_used = (remaining_M < T_M) ? remaining_M: T_M;
-    Tile* tile1 = new Tile(1, 1, 1, cols_used, 1, 1, rows_used, 1, false);
+    STONNE_Tile* tile1 = new STONNE_Tile(1, 1, 1, cols_used, 1, 1, rows_used, 1, false);
     this->multiplier_network->resetSignals();
     this->reduce_network->resetSignals();
     this->multiplier_network->configureSignals(tile1, this->dnn_layer, this->ms_rows, this->ms_cols);
