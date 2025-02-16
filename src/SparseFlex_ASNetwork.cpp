@@ -131,7 +131,7 @@ SparseFlex_ASNetwork::~SparseFlex_ASNetwork() {
 
 void SparseFlex_ASNetwork::setMemoryConnections(std::vector<std::vector<Connection*>>  memoryConnections) {
      unsigned int n_bus_lines = memoryConnections.size();
-     std::cout << "N_bus_lines: " << n_bus_lines << std::endl;
+     //std::cout << "N_bus_lines: " << n_bus_lines << std::endl;
 
      //If the accumulation buffer is enabled then the object must be created 
      if(this->accumulation_buffer_enabled > 0) {
@@ -192,7 +192,7 @@ void SparseFlex_ASNetwork::setMemoryConnections(std::vector<std::vector<Connecti
             accbuffer_memory_connections.push_back(mem_conn);
 
     }
-        std::cout << "SparseFlex_ASwitch " << as->getLevel() << ":" << as->getNumInLevel() << " connected to BUS " << busID << " INPUT " << inputID << std::endl;
+        //std::cout << "SparseFlex_ASwitch " << as->getLevel() << ":" << as->getNumInLevel() << " connected to BUS " << busID << " INPUT " << inputID << std::endl;
 
      connectionID+=1;
 

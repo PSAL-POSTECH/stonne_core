@@ -107,7 +107,7 @@ void OuterLoopSpGEMMSDMemory::setWriteConnections(std::vector<Connection*> write
 
 void OuterLoopSpGEMMSDMemory::setReadConnections(std::vector<Connection*> read_connections) {
     assert(read_connections.size() == (n_read_ports)); //Checking that the number of input ports is valid.
-    std::cout << "Number of read connections: " << read_connections.size() << std::endl;
+    //std::cout << "Number of read connections: " << read_connections.size() << std::endl;
     this->read_connections = read_connections; //Copying all the pointers
 }
 
