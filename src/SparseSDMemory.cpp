@@ -191,8 +191,8 @@ void SparseSDMemory::setSparseMetadata(metadata_address_t MK_metadata, metadata_
 
 void SparseSDMemory::cycle() {
     //Sending input data over read_connection
-    assert(this->layer_loaded);  // Layer has been loaded
-    assert(this->metadata_loaded); //Metadata for sparsity has been loaded
+    if (!this->layer_loaded || !this->metadata_loaded)
+        return;
     std::vector<DataPackage*> data_to_send; //Input and weight temporal storage
     std::vector<DataPackage*> psum_to_send; // psum temporal storage
     this->local_cycle+=1;

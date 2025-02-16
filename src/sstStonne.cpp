@@ -14,6 +14,7 @@ sstStonne::sstStonne(std::string config_file, std::string mem_file) :
 
     write_queue_ = new LSQueue();
     load_queue_ = new LSQueue();
+    stonne_instance = new Stonne(stonne_cfg, load_queue_, write_queue_, mem_interface_);
 }
 
 sstStonne::sstStonne(std::string config_file) : sstStonne(config_file, "") {};
@@ -152,9 +153,6 @@ void sstStonne::setup(StonneOpDesc operation) {
             // Data is not mandatory
         }
     }
-
-    //Updating hardware parameters
-    stonne_instance = new Stonne(stonne_cfg, load_queue_, write_queue_, mem_interface_);
 
     switch(opDesc.operation) {
         case CONV:

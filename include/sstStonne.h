@@ -87,8 +87,8 @@ public:
     LSQueue* writeQueue() { return write_queue_; }
 private:
     //SST Variables
-    SimpleMem*  mem_interface_;
-    Stonne* stonne_instance;
+    SimpleMem*  mem_interface_ = NULL;
+    Stonne* stonne_instance = NULL;
 
     unsigned int matrixA_size;
     unsigned int matrixB_size;
