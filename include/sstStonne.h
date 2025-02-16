@@ -85,6 +85,7 @@ public:
     void printEnergy() { stonne_instance->printEnergy(); }
     LSQueue* loadQueue() { return load_queue_; }
     LSQueue* writeQueue() { return write_queue_; }
+    Config getStonneConfig() { return stonne_cfg; }
 private:
     //SST Variables
     SimpleMem*  mem_interface_ = NULL;

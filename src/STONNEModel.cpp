@@ -378,7 +378,7 @@ void Stonne::printStats() {
     unsigned int num_ms = this->stonne_cfg.m_MSNetworkCfg.ms_size;
     unsigned int dn_bw = this->stonne_cfg.m_SDMemoryCfg.n_read_ports;
     unsigned int rn_bw = this->stonne_cfg.m_SDMemoryCfg.n_write_ports;
-    const char* output_directory=std::getenv("OUTPUT_DIR");
+    const char* output_directory=std::getenv("STONNE_OUTPUT_DIR");
     std::string output_directory_str="";
     if(output_directory!=NULL) {
         std::string env_output_dir(output_directory);
@@ -438,7 +438,7 @@ void Stonne::printEnergy() {
     unsigned int dn_bw = this->stonne_cfg.m_SDMemoryCfg.n_read_ports;
     unsigned int rn_bw = this->stonne_cfg.m_SDMemoryCfg.n_write_ports;
 
-    const char* output_directory=std::getenv("OUTPUT_DIR");
+    const char* output_directory=std::getenv("STONNE_OUTPUT_DIR");
     std::string output_directory_str="";
     if(output_directory!=NULL) {
         std::string env_output_dir(output_directory);
