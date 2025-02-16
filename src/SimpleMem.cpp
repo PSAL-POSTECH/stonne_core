@@ -18,7 +18,6 @@ void SimpleMem::Request::setReply() {
 }
 // Constructor
 SimpleMem::SimpleMem() {
-    std::cout << "[Functional Memory] SimpleMem initialized." << std::endl;
 }
 
 void SimpleMem::init(int phase) {
