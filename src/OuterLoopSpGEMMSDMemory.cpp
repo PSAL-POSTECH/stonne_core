@@ -201,7 +201,7 @@ void OuterLoopSpGEMMSDMemory::cycle() {
         for(int i=0; i<this->num_ms; i++) {
             ms_group[i]=-1;
         }
-        //std::cout << "Computing column " << current_MK_col_pointer << "/" << K << std::endl;
+        std::cout << "Computing column " << current_MK_col_pointer << "/" << K << std::endl;
     //this->reduce_network->configureSignals(tile1, this->dnn_layer, this->num_ms, this->iter_K);
     }
     if(current_state == DIST_STA_MATRIX) {
@@ -439,8 +439,8 @@ void OuterLoopSpGEMMSDMemory::cycle() {
     else if(current_state==DIST_STA_MATRIX) {
         if(STA_complete) {
             current_state=DIST_STR_MATRIX;
-        STA_complete = false;
-    }
+            STA_complete = false;
+        }
     }
 
     else if(current_state==DIST_STR_MATRIX) {
