@@ -179,6 +179,11 @@ public:
             mem_interface_->sendRequest( req );
         return 1;
     }
+    void loadAddress(uint64_t input_loc, uint64_t filter_loc, uint64_t output_loc) {
+        input_dram_location=input_loc;
+        weight_dram_location=filter_loc;
+        output_dram_location=output_loc;
+    }
 };
 
 

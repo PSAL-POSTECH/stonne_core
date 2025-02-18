@@ -122,6 +122,7 @@ public:
     void setMultiplierNetwork(MultiplierNetwork* multiplier_network) {this->multiplier_network = multiplier_network;}
     void printStats(std::ofstream& out, unsigned int indent);
     void printEnergy(std::ofstream& out, unsigned int indent);
+    void loadAddress(uint64_t input_loc, uint64_t filter_loc, uint64_t output_loc) {}
 };
 
 

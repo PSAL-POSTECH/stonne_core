@@ -153,6 +153,7 @@ void OuterLoopSpGEMMSDMemory::setSparseMatrixMetadata(metadata_address_t MK_meta
 
 
 void OuterLoopSpGEMMSDMemory::cycle() {
+    nr_cycle++;
    // std::cout<<"Hello, its me";
     //Here MK(sparse) matrix is stationary and KN(dense) matrix is streaming
     //Sending input data over read_connection
@@ -216,6 +217,7 @@ void OuterLoopSpGEMMSDMemory::cycle() {
             //Sending package
             vnat_table[i]=col; //To find out the row of mstrix KN.
             uint64_t new_addr = input_dram_location + current_MK_row_id*this->data_width;
+            //fprintf(stderr, "[Weight load][%d] weight load address: 0x%x\n", nr_cycle, new_addr);
             data_t data = 0.0;
             DataPackage* pck_to_send = new DataPackage(sizeof(data_t), data, WEIGHT, i, UNICAST, i, row, col);
             doLoad(new_addr, pck_to_send);
@@ -249,6 +251,7 @@ void OuterLoopSpGEMMSDMemory::cycle() {
         this->n_str_data_sent++;
                 //Send STR value to this multiplier
         uint64_t new_addr = this->weight_dram_location + (KN_row_pointer[row]+this->current_KN)*this->data_width;
+        //fprintf(stderr, "[Streaming load][%d] input load address: 0x%x\n", nr_cycle, new_addr);
         data_t data = 0.0;
                 DataPackage* pck_to_send = new DataPackage(sizeof(data_t), data, IACTIVATION, i, UNICAST, i, row, KN_col_id[KN_row_pointer[row]+this->current_KN]);
                 //std::cout << "[Cycle " << this->local_cycle << "] Sending STREAMING data with value " << data << std::endl;

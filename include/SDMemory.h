@@ -201,6 +201,11 @@ public:
    
     void printStats(std::ofstream& out, unsigned int indent);
     void printEnergy(std::ofstream& out, unsigned int indent);
+    void loadAddress(uint64_t input_loc, uint64_t filter_loc, uint64_t output_loc) {
+        input_dram_location=input_loc;
+        weight_dram_location=filter_loc;
+        output_dram_location=output_loc;
+    }
 };
 
 

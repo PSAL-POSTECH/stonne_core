@@ -40,17 +40,17 @@ void SimpleMem::sendRequest(Request* req) {
     uint64_t addr = req->getAddress();
     switch (req->getcmd()) {
         case Request::Command::Read:
-            //for (uint64_t offset=0; offset<req->getSize(); offset++) {
-            //    //if (dataArray.find(addr+offset) == dataArray.end()) {
-            //    //    dataArray[addr+offset] = 0;
-            //    //}
-            //    req->getData().at(offset) = dataArray[addr+offset];
-            //}
+            for (uint64_t offset=0; offset<req->getSize(); offset++) {
+                //if (dataArray.find(addr+offset) == dataArray.end()) {
+                //    dataArray[addr+offset] = 0;
+                //}
+                req->getData().at(offset) = dataArray[addr+offset];
+            }
             request_queue.push(req);
             break;
         case Request::Command::Write:
-            //for (uint64_t offset=0; offset<req->getSize(); offset++)
-            //    dataArray[addr+offset] = req->getData().at(offset);
+            for (uint64_t offset=0; offset<req->getSize(); offset++)
+                dataArray[addr+offset] = req->getData().at(offset);
             request_queue.push(req);
             break;
         case Request::Command::ReadResp:

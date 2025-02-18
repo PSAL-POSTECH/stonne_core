@@ -154,6 +154,7 @@ void sstStonne::setup(StonneOpDesc operation) {
         }
     }
 
+    stonne_instance->loadAddress(dram_matrixA_address, dram_matrixB_address, dram_matrixC_address);
     switch(opDesc.operation) {
         case CONV:
             stonne_instance->loadDNNLayer(CONV, opDesc.layer_name, opDesc.R, opDesc.S, opDesc.C, opDesc.K,

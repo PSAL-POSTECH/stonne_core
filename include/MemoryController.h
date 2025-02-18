@@ -37,6 +37,7 @@ public:
     virtual void setSparseMatrixMetadata(metadata_address_t MK_metadata_id, metadata_address_t MK_metadata_pointer, metadata_address_t KN_metadata_id, metadata_address_t KN_metadata_pointer) {assert(false);}
     virtual void printStats(std::ofstream& out, unsigned int indent) {assert(false);}
     virtual void printEnergy(std::ofstream& out, unsigned int indent) {assert(false);}
+    virtual void loadAddress(uint64_t, uint64_t, uint64_t)=0;
 };
 
 

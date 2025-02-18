@@ -40,6 +40,7 @@ public:
         uint64_t addr;
         size_t size;
         std::vector<uint8_t> data;
+        uint64_t request_time = 0;
     };
 
     SimpleMem();
@@ -48,7 +49,6 @@ public:
     void sendInitData(Request* req);
     void sendRequest(Request* req);
     Request* popRequest();
-
 protected:
     std::map<uint64_t, uint8_t> dataArray;
     std::queue<Request*> request_queue;

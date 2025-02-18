@@ -39,16 +39,16 @@ private:
     ReduceNetwork* asnet; //ART Network
     LookupTable* lt; //Lookuptable
     MemoryController* mem; //MemoryController abstraction (e.g., SDMemory from MAERI)
-    Bus* collectionBusRN; //CollectionBus
-    Bus* collectionBusMN;
-    Connection* outputASConnection; //The last connection of the AS and input to the lookuptable
-    Connection* outputLTConnection; //Output of the lookup table connection and write port to the SDMemory
-    Connection** addersBusConnections; //Array of output connections between the adders and the bus
-    Connection** BusMemoryConnections; //Array of output Connections between the bus and the memory. (Write output ports)
+    Bus* collectionBusRN = NULL; //CollectionBus
+    Bus* collectionBusMN = NULL;
+    Connection* outputASConnection = NULL; //The last connection of the AS and input to the lookuptable
+    Connection* outputLTConnection = NULL; //Output of the lookup table connection and write port to the SDMemory
+    Connection** addersBusConnections = NULL; //Array of output connections between the adders and the bus
+    Connection** BusMemoryConnections = NULL; //Array of output Connections between the bus and the memory. (Write output ports)
 
     //Software parameters
-    DNNLayer* dnn_layer; 
-    STONNE_Tile* current_tile;
+    DNNLayer* dnn_layer=NULL;
+    STONNE_Tile* current_tile=NULL;
     bool layer_loaded; //Indicates if the function loadDNN
     bool tile_loaded; 
 
@@ -105,9 +105,9 @@ public:
 
     void loadSparseOuterProduct(std::string layer_name, unsigned int N, unsigned int K, unsigned int M, address_t MK_matrix, address_t KN_matrix, metadata_address_t MK_metadata_id, metadata_address_t MK_metadata_pointer, metadata_address_t KN_metadata_id, metadata_address_t KN_metadata_pointer, address_t output_matrix);
 
-   //Load a Dense GEMM tile to run it using the loadDenseGEMM function
-   void loadGEMMTile(unsigned int T_N, unsigned int T_K, unsigned int T_M);
-
+    //Load a Dense GEMM tile to run it using the loadDenseGEMM function
+    void loadGEMMTile(unsigned int T_N, unsigned int T_K, unsigned int T_M);
+    void loadAddress(uint64_t input_loc, uint64_t filter_loc, uint64_t output_loc) { mem->loadAddress(input_loc, filter_loc, output_loc); }
     void loadTile(unsigned int T_R, unsigned int T_S, unsigned int T_C, unsigned int T_K, unsigned int T_G, unsigned int T_N, unsigned int T_X_, unsigned int T_Y_); //Load general and CONV tile
     void loadFCTile(unsigned int T_S, unsigned int T_N, unsigned int T_K); //VNSize = T_S, NumVNs= T_N*T_K
     void run();
