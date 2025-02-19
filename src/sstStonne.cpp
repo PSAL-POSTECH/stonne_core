@@ -257,21 +257,37 @@ void sstStonne::finish() {
     //delete[] matrixC;
 
     if(opDesc.operation==bitmapSpMSpM) {
-        delete[] bitmapMatrixA;
-        delete[] bitmapMatrixB;
+        if (bitmapMatrixA)
+            delete[] bitmapMatrixA;
+        if (bitmapMatrixB)
+            delete[] bitmapMatrixB;
+        bitmapMatrixA = NULL;
+        bitmapMatrixB = NULL;
     }
 
     else if(opDesc.operation==csrSpMM) {
-        delete[] rowpointerMatrixA;
-        delete[] colpointerMatrixA;
+        if (rowpointerMatrixA)
+            delete[] rowpointerMatrixA;
+        if (colpointerMatrixA)
+            delete[] colpointerMatrixA;
+        rowpointerMatrixA = NULL;
+        colpointerMatrixA = NULL;
     }
     else if((opDesc.operation==outerProductGEMM) || (opDesc.operation==gustavsonsGEMM)) {
-        delete[] rowpointerMatrixA;
-        delete[] colpointerMatrixA;
-        delete[] rowpointerMatrixB;
-        delete[] colpointerMatrixB;
+        if (rowpointerMatrixA)
+            delete[] rowpointerMatrixA;
+        if (colpointerMatrixA)
+            delete[] colpointerMatrixA;
+        if (rowpointerMatrixB)
+            delete[] rowpointerMatrixB;
+        if (colpointerMatrixB)
+            delete[] colpointerMatrixB;
+        rowpointerMatrixA = NULL;
+        colpointerMatrixA = NULL;
+        rowpointerMatrixB = NULL;
+        colpointerMatrixB = NULL;
     }
-    std::cout << "The finish function ends" << std::endl;
+    //std::cout << "The finish function ends" << std::endl;
 }
 
 void sstStonne::dumpMemoryToFile(std::string fileName, float* array, unsigned int size) {

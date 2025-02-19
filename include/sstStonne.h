@@ -121,22 +121,22 @@ private:
     /* Data pointers */
     /**************************************************************************/
 
-    float* matrixA;  //This is input ifmaps in CONV operation or MK matrix in GEMM operation
-    float* matrixB;  //This is filter matrix in CONV operation or KN matrix in GEMM operation
-    float* matrixC;  //This is output fmap in CONV operation or resulting MN matrix in GEMM operation
+    float* matrixA=NULL;  //This is input ifmaps in CONV operation or MK matrix in GEMM operation
+    float* matrixB=NULL;  //This is filter matrix in CONV operation or KN matrix in GEMM operation
+    float* matrixC=NULL;  //This is output fmap in CONV operation or resulting MN matrix in GEMM operation
 
     //These three structures are used to represent the bitmaps in a bitmapSpMSpM operation. The datatype
     //could be smaller to unsigned int (one single bit per element is necessary) but will use this for simplicity 
     //In terms of functionallity the simulation is not affected
-    unsigned int* bitmapMatrixA; //This is the bitmap of MK matrix in bitmapSpMSpM operation
-    unsigned int* bitmapMatrixB; //This is the bitmap of KN matrix in bitmapSpMSpM operation
-    unsigned int* bitmapMatrixC; //This is the bitmap for the resulting matrix in bitmapSpMSpM operation
+    unsigned int* bitmapMatrixA=NULL; //This is the bitmap of MK matrix in bitmapSpMSpM operation
+    unsigned int* bitmapMatrixB=NULL; //This is the bitmap of KN matrix in bitmapSpMSpM operation
+    unsigned int* bitmapMatrixC=NULL; //This is the bitmap for the resulting matrix in bitmapSpMSpM operation
 
-    unsigned int* rowpointerMatrixA; //This is the row pointer of MK matrix in csrSpMM operation
-    unsigned int* colpointerMatrixA; //This is the col pointer of MK matrix in csrSpMM operation
+    unsigned int* rowpointerMatrixA=NULL; //This is the row pointer of MK matrix in csrSpMM operation
+    unsigned int* colpointerMatrixA=NULL; //This is the col pointer of MK matrix in csrSpMM operation
 
-    unsigned int* rowpointerMatrixB;  //This is the pointer of KN matrix in outerProduct operation
-    unsigned int* colpointerMatrixB;  //This is the id pointer of KN matrix in outerProduct operation
+    unsigned int* rowpointerMatrixB=NULL;  //This is the pointer of KN matrix in outerProduct operation
+    unsigned int* colpointerMatrixB=NULL;  //This is the id pointer of KN matrix in outerProduct operation
     
     /**************************************************************************/
     /* Auxiliary variables */
