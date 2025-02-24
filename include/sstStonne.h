@@ -73,7 +73,7 @@ public:
     ~sstStonne();
 
     // Override SST::Component Virtual Methods
-    void setup(StonneOpDesc opDesc);
+    void setup(StonneOpDesc opDesc, uint64_t offse);
     void finish();
     bool isFinished() { return stonne_instance->isExecutionFinished(); }
     void init( uint32_t phase );
@@ -86,6 +86,7 @@ public:
     LSQueue* loadQueue() { return load_queue_; }
     LSQueue* writeQueue() { return write_queue_; }
     Config getStonneConfig() { return stonne_cfg; }
+    MSwitchStats getMSStats() { return stonne_instance->getMSstat(); }
 private:
     //SST Variables
     SimpleMem*  mem_interface_ = NULL;

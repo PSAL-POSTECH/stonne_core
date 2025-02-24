@@ -84,7 +84,30 @@ public:
     MSwitchStats();
     void reset();
     void print(std::ofstream& out, unsigned int indent);
-
+    void accumulate(const MSwitchStats& other) {
+        this->total_cycles += other.total_cycles;
+        this->n_multiplications += other.n_multiplications;
+        this->n_input_forwardings_send += other.n_input_forwardings_send;
+        this->n_input_forwardings_receive += other.n_input_forwardings_receive;
+        this->n_inputs_receive += other.n_inputs_receive;
+        this->n_weights_receive += other.n_weights_receive;
+        this->n_weight_fifo_flush += other.n_weight_fifo_flush;
+        this->n_psums_receive += other.n_psums_receive;
+        this->n_psum_forwarding_send += other.n_psum_forwarding_send;
+        this->n_configurations += other.n_configurations;
+    }
+    MSwitchStats& operator+=(const MSwitchStats& other) {
+        this->accumulate(other);
+        return *this;
+    }
+    MSwitchStats getAccumulatedStats() const {
+        return *this;
+    }
+    void print() const {
+        std::cout << " \"total_cycles\": " << total_cycles
+            << ", \"n_multiplications\": " << n_multiplications
+            << " " << std::endl;
+    }
 };
 
 class MultiplierOSStats : public Stats {

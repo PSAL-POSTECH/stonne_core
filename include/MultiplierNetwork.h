@@ -35,5 +35,6 @@ public:
     virtual void printConfiguration(std::ofstream& out, unsigned int indent) {assert(false);}
     virtual void printStats(std::ofstream &out, unsigned int indent) {assert(false);}
     virtual void printEnergy(std::ofstream& out, unsigned int indent) {assert(false);}
+    virtual MSwitchStats getStats() {assert(false);}
 };
 #endif 

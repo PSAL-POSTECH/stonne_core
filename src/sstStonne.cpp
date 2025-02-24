@@ -55,12 +55,12 @@ void sstStonne::cycle() {
     stonne_instance->cycle();
 }
 
-void sstStonne::setup(StonneOpDesc operation) {
+void sstStonne::setup(StonneOpDesc operation, uint64_t offset=0) {
     //Creating arrays for this version of the integration
     opDesc = operation;
-    dram_matrixA_address = operation.matrix_a_dram_address;
-    dram_matrixB_address = operation.matrix_b_dram_address;
-    dram_matrixC_address = operation.matrix_c_dram_address;
+    dram_matrixA_address = operation.matrix_a_dram_address + offset;
+    dram_matrixB_address = operation.matrix_b_dram_address + offset;
+    dram_matrixC_address = operation.matrix_c_dram_address + offset;
 
     memMatrixCFileName = opDesc.mem_matrix_c_file_name;
     bitmapMatrixAFileName = opDesc.bitmap_matrix_a_init;
@@ -180,6 +180,7 @@ void sstStonne::setup(StonneOpDesc operation) {
         default:
             break;
     };
+    stonne_instance->printStats();
 }
 
 std::vector< uint32_t >* sstStonne::constructMemory(std::string fileName) { //In the future version this will be directly simulated memory

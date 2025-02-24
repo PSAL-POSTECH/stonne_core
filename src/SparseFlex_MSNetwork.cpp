@@ -295,7 +295,15 @@ void SparseFlex_MSNetwork::printStats(std::ofstream &out, unsigned int indent) {
         }
         out << ind(indent+IND_SIZE) << "]" << std::endl;
     out << ind(indent) << "}";
+}
 
+MSwitchStats SparseFlex_MSNetwork::getStats() {
+    MSwitchStats accum;
+    for(int i=0; i < this->ms_size; i++) {  //From root to leaves (without the MSs)
+        SparseFlex_MSwitch* ms = mswitchtable[i];
+        accum += ms->getStats();
+    }
+    return accum;
 }
 
 void SparseFlex_MSNetwork::printEnergy(std::ofstream& out, unsigned int indent) {

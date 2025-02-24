@@ -38,7 +38,21 @@ OuterLoopSpGEMMSDMemory::OuterLoopSpGEMMSDMemory(id_t id, std::string name, Conf
     }
     for(int i=0; i<(this->n_write_ports)*2; i++) {  //To track information
         this->sdmemoryStats.n_SRAM_write_ports_use.push_back(0);  //To track information
-    }  //To track information
+    }
+}
+
+OuterLoopSpGEMMSDMemory::~OuterLoopSpGEMMSDMemory() {
+    delete write_fifo;
+    delete[] intermediate_memory;
+    //Deleting the input ports
+    for(int i=0; i<(this->n_read_ports); i++) {
+        delete input_fifos[i];
+        delete psum_fifos[i];
+    }
+}
+
+void OuterLoopSpGEMMSDMemory::reset() {
+    //To track information
     this->configuration_done = false;
     this->stationary_distributed = false;
     this->stationary_finished = false;
@@ -78,26 +92,15 @@ OuterLoopSpGEMMSDMemory::OuterLoopSpGEMMSDMemory(id_t id, std::string name, Conf
     this->sort_up_received_first_value = false;
     this->sort_sub_block_id = 0;
     this->sort_num_blocks = 0;
+    vnat_table.clear();
+    ms_group.clear();
     for(int i=0; i<this->num_ms; i++) {
         vnat_table.push_back(-1); //Initializing table with rows of sta data
-    ms_group.push_back(-1);
+        ms_group.push_back(-1);
     }
     this->n_values_stored=0;
     this->swap_memory_enabled=false;
     this->current_sorting_iteration=0;
-
-}
-
-OuterLoopSpGEMMSDMemory::~OuterLoopSpGEMMSDMemory() {
-    delete write_fifo;
-    delete[] intermediate_memory;
-    //Deleting the input ports
-    for(int i=0; i<(this->n_read_ports); i++) {
-        delete input_fifos[i];
-        delete psum_fifos[i];
-    }
-
-
 }
 
 void OuterLoopSpGEMMSDMemory::setWriteConnections(std::vector<Connection*> write_port_connections) {
@@ -112,6 +115,7 @@ void OuterLoopSpGEMMSDMemory::setReadConnections(std::vector<Connection*> read_c
 }
 
 void OuterLoopSpGEMMSDMemory::setLayer(DNNLayer* dnn_layer, address_t MK_address, address_t KN_address, address_t output_address, Dataflow dataflow) {
+    reset();
     this->dnn_layer = dnn_layer;
     assert(this->dnn_layer->get_layer_type()==SPARSE_DENSE);  // This controller only supports GEMM with one sparse and one dense
     //this->dataflow = dataflow;
@@ -135,8 +139,6 @@ void OuterLoopSpGEMMSDMemory::setLayer(DNNLayer* dnn_layer, address_t MK_address
 
     //  this->output_size = dim_sta*dim_str;
     this->output_size = M*N;
-
-
 }
 
 //Load CSR
@@ -202,7 +204,7 @@ void OuterLoopSpGEMMSDMemory::cycle() {
         for(int i=0; i<this->num_ms; i++) {
             ms_group[i]=-1;
         }
-        std::cout << "Computing column " << current_MK_col_pointer << "/" << K << std::endl;
+        //std::cout << "Computing column " << current_MK_col_pointer << "/" << K << std::endl;
     //this->reduce_network->configureSignals(tile1, this->dnn_layer, this->num_ms, this->iter_K);
     }
     if(current_state == DIST_STA_MATRIX) {

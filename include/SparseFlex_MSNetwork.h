@@ -43,7 +43,6 @@ private:
     std::map<int, SparseFlex_MSwitch*> getMSwitches();
     std::map<int, Connection*> getForwardingConnections(); //Return the connections
 
-
 public:
     /*
        By the default the implementation of the MS just receives a single element, calculate a single psum and/or send a single input activation to the neighbour. This way, the parameters
@@ -65,6 +64,6 @@ public:
     void printEnergy(std::ofstream& out, unsigned int indent);
     void setMemoryConnections(std::vector<std::vector<Connection*>> memoryConnections);
     //MSNetworkStats getStats();
-
+    MSwitchStats getStats();
 };
 #endif 

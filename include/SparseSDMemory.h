@@ -184,6 +184,7 @@ public:
         weight_dram_location=filter_loc;
         output_dram_location=output_loc;
     }
+    uint64_t nr_cycle=0;
 };
 
 

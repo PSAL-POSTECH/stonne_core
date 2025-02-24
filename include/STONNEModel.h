@@ -115,7 +115,7 @@ public:
     void printStats();
     void printEnergy();
     bool isExecutionFinished();
-    
+    MSwitchStats getMSstat() { return msnet->getStats(); }
 };
 
 #endif

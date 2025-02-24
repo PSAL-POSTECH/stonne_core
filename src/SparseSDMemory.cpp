@@ -190,6 +190,7 @@ void SparseSDMemory::setSparseMetadata(metadata_address_t MK_metadata, metadata_
 
 
 void SparseSDMemory::cycle() {
+    nr_cycle++;
     //Sending input data over read_connection
     if (!this->layer_loaded || !this->metadata_loaded)
         return;
@@ -203,8 +204,8 @@ void SparseSDMemory::cycle() {
       uint32_t req_id = load_queue_->getNextCompletedEntry();
       DataPackage* pck = load_queue_->getEntryPackage(req_id);
       load_queue_->removeEntry(req_id);
+      fprintf(stdout, "[2] sending package to fifo\n");
       this->sendPackageToInputFifos(pck); //Sending the package
-
     }
 
     //Processing write memory requests
@@ -416,6 +417,7 @@ void SparseSDMemory::cycle() {
            for(; j<this->configurationVNs[i].get_VN_Size(); j++) {
            //Accessing to memory
            uint64_t new_addr = this->STA_dram_location + (sta_current_index_matrix+sub_address)*this->data_width;
+           fprintf(stdout, "[Weight load][%ld] weight load address: 0x%lx\n", nr_cycle, new_addr);
            data_t data = 0.0;
            sdmemoryStats.n_SRAM_weight_reads++;
            this->n_ones_sta_matrix++;
@@ -442,6 +444,7 @@ void SparseSDMemory::cycle() {
        destinations[0]=true;
 
        uint64_t new_addr = addr_offset*this->data_width + this->output_dram_location;
+       fprintf(stdout, "[Streaming load][%ld] input load address: 0x%lx\n", nr_cycle, new_addr); 
        data_t psum = 0.0;  //Reading the current psum
        DataPackage* pck = new DataPackage(sizeof(data_t), psum, PSUM,0, MULTICAST, destinations, this->num_ms,0,0);
        //std::cout << "Distributing streaming matrix" << std::endl;
@@ -474,6 +477,7 @@ void SparseSDMemory::cycle() {
      if(STR_metadata[str_current_index*STR_DIST_VECTOR + j*STR_DIST_ELEM]) {
          unsigned int src = str_counters_table[str_current_index*STR_DIST_VECTOR + j*STR_DIST_ELEM];
          uint64_t new_addr = STR_dram_location + src*this->data_width;
+         fprintf(stdout, "[Streaming load][%ld] input load address: 0x%lx\n", nr_cycle, new_addr); 
          data = 0.0;
          sdmemoryStats.n_SRAM_input_reads++;
          DataPackage* pck = new DataPackage(sizeof(data_t), data,IACTIVATION,0, MULTICAST, destinations, this->num_ms,0,0);
@@ -498,26 +502,26 @@ void SparseSDMemory::cycle() {
     //Receiving output data from write_connection
     this->receive();
     if(!write_fifo->isEmpty()) {
+        printf("receiving data from write_fifo\n");
         //Index the data by using the VN Address Table and the VN id of the packages
         for(int i=0; i<write_fifo->size(); i++) {
             DataPackage* pck_received = write_fifo->pop();
             unsigned int vn = pck_received->get_vn();
             data_t data = pck_received->get_data();
             this->sdmemoryStats.n_SRAM_psum_writes++; //To track information
-        unsigned int addr_offset = (sta_current_index_metadata+vn)*OUT_DIST_VN + vnat_table[vn]*OUT_DIST_VN_ITERATION;
-        uint64_t new_addr = this->output_dram_location + addr_offset*this->data_width;
-        pck_received->set_address(new_addr);
-        doStore(new_addr, pck_received);
-        vnat_table[vn]++;
+            unsigned int addr_offset = (sta_current_index_metadata+vn)*OUT_DIST_VN + vnat_table[vn]*OUT_DIST_VN_ITERATION;
+            uint64_t new_addr = this->output_dram_location + addr_offset*this->data_width;
+            pck_received->set_address(new_addr);
+            doStore(new_addr, pck_received);
+            vnat_table[vn]++;
             //this->output_address[addr_offset]=data; //ofmap or psum, it does not matter.
             current_output++;
-        current_output_iteration++;
-        if(current_output_iteration==output_size_iteration) {
+            current_output_iteration++;
+            if(current_output_iteration==output_size_iteration) {
                 current_output_iteration = 0;
-        sta_iter_completed=true;
-        }
+                sta_iter_completed=true;
+            }
             //delete pck_received; //Deleting the current package
-
         }
     }
  //   std::cout << "Current state: " << current_state << std::endl;
@@ -525,20 +529,20 @@ void SparseSDMemory::cycle() {
 //    if((load_queue_->getNumPendingEntries() == 0)) { //&& (write_queue_->getNumPendingEntries() < this->n_write_mshr)) {
     if((current_state==CONFIGURING) && ((load_queue_->getNumPendingEntries() == 0))) {
         current_state=DIST_STA_MATRIX;
-    //std::cout << "Transitioning to DIS_STA_MATRIX" << std::endl;
+    std::cout << "Transitioning to DIS_STA_MATRIX" << std::endl;
     }
 
     else if(current_state==DIST_STA_MATRIX ) {
         current_state=DIST_STR_MATRIX;
-    //std::cout << "Transitioning to DIST_STR_MATRIX" << std::endl;
+    std::cout << "Transitioning to DIST_STR_MATRIX" << std::endl;
     }
     else if(current_state==DIST_STR_MATRIX  && str_current_index==dim_str) {
 
     current_state = WAITING_FOR_NEXT_STA_ITER;
-//    std::cout << "Transitioning to WAITING_FOR_NEXT_STA_ITER" << std::endl;
+    std::cout << "Transitioning to WAITING_FOR_NEXT_STA_ITER" << std::endl;
     }
     else if(current_state==WAITING_FOR_NEXT_STA_ITER && sta_iter_completed) {
-  //      std::cout << "WAITING AT WAITING_FOR_NEXT_STA_ITER" << std::endl;
+        std::cout << "WAITING AT WAITING_FOR_NEXT_STA_ITER" << std::endl;
     this->str_current_index = 0;
     this->sta_iter_completed=false;
         if(this->configurationVNs.size()==1) {//If there is only one VN, then maybe foliding has been needed
@@ -733,6 +737,7 @@ void SparseSDMemory::receive() { //TODO control if there is no space in queue
         if(write_port_connections[i]->existPendingData()) {
             std::vector<DataPackage*> data_received = write_port_connections[i]->receive();
              for(int i=0; i<data_received.size(); i++) {
+                printf("write2 data to writ fifo\n");
                  write_fifo->push(data_received[i]);
              }
         }

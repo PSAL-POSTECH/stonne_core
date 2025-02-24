@@ -41,6 +41,7 @@ public:
         size_t size;
         std::vector<uint8_t> data;
         uint64_t request_time = 0;
+        uint32_t stonneId = 0;
     };
 
     SimpleMem();

@@ -64,6 +64,7 @@ Stonne::Stonne(Config stonne_cfg, SST_STONNE::LSQueue* load_queue_, SST_STONNE::
     //switch(MemoryController). It is possible to create instances of other MemoryControllers
     switch(stonne_cfg.m_SDMemoryCfg.mem_controller_type) {
     case SIGMA_SPARSE_GEMM:
+            printf("[Stonne] SparseSDMemory selected\n");
             this->mem = new SparseSDMemory(0, "SparseSDMemory", stonne_cfg, this->outputLTConnection, load_queue_, write_queue_, mem_interface_);
         break;
     case MAERI_DENSE_WORKLOAD:
@@ -387,7 +388,6 @@ void Stonne::printStats() {
     /* Skip when DNN is not set */
     if (dnn_layer == NULL)
         return;
-
     out.open(output_directory_str+"output_stats_layer_"+this->dnn_layer->get_name()+"_architecture_MSes_"+std::to_string(num_ms)+"_dnbw_"+std::to_string(dn_bw)+"_"+"rn_bw_"+std::to_string(rn_bw)+"timestamp_"+std::to_string((int)time(NULL))+".txt"); //TODO Modify name somehow
     unsigned int indent=IND_SIZE;
     out << "{" << std::endl;
