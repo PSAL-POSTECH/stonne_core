@@ -87,6 +87,7 @@ public:
     LSQueue* writeQueue() { return write_queue_; }
     Config getStonneConfig() { return stonne_cfg; }
     MSwitchStats getMSStats() { return stonne_instance->getMSstat(); }
+    int getMCFSMStats() { return stonne_instance->getMCFSMStatus(); }
 private:
     //SST Variables
     SimpleMem*  mem_interface_ = NULL;

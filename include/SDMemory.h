@@ -165,7 +165,7 @@ public:
     void setReduceNetwork(ReduceNetwork* reduce_network) {this->reduce_network=reduce_network;}
     //Used to configure the MultiplierNetwork according to the controller if needed
     void setMultiplierNetwork(MultiplierNetwork* multiplier_network) {this->multiplier_network = multiplier_network;}
-
+    int getFSMStatus() { return 0; }
     bool doLoad(uint64_t addr, DataPackage* data_package)
     {
         SimpleMem::Request* req = new SimpleMem::Request(SimpleMem::Request::Read, addr, this->data_width);

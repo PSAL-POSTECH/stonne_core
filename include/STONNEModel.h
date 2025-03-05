@@ -115,6 +115,7 @@ public:
     void printStats();
     void printEnergy();
     bool isExecutionFinished();
+    int getMCFSMStatus() { return mem->getFSMStatus(); }
     MSwitchStats getMSstat() { return msnet->getStats(); }
 };
 

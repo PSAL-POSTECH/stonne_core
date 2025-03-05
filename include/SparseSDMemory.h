@@ -149,6 +149,7 @@ public:
     void setMultiplierNetwork(MultiplierNetwork* multiplier_network) {this->multiplier_network = multiplier_network;}
     void printStats(std::ofstream& out, unsigned int indent);
     void printEnergy(std::ofstream& out, unsigned int indent);
+    int getFSMStatus() { return int(current_state); }
     bool doLoad(uint64_t addr, DataPackage* data_package)
     {
         SimpleMem::Request* req = new SimpleMem::Request(SimpleMem::Request::Read, addr, this->data_width);

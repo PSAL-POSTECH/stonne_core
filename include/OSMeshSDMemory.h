@@ -123,6 +123,7 @@ public:
     void printStats(std::ofstream& out, unsigned int indent);
     void printEnergy(std::ofstream& out, unsigned int indent);
     void loadAddress(uint64_t input_loc, uint64_t filter_loc, uint64_t output_loc) {}
+    int getFSMStatus() { return int(current_state); }
 };
 
 

@@ -38,6 +38,7 @@ public:
     virtual void printStats(std::ofstream& out, unsigned int indent) {assert(false);}
     virtual void printEnergy(std::ofstream& out, unsigned int indent) {assert(false);}
     virtual void loadAddress(uint64_t, uint64_t, uint64_t)=0;
+    virtual int getFSMStatus()=0;
 };
 
 
