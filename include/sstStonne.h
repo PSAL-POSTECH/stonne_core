@@ -64,6 +64,7 @@ public:
     std::string colpointer_matrix_a_init = "";
     std::string rowpointer_matrix_b_init = "";
     std::string colpointer_matrix_b_init = "";
+    std::string trace_path = "";
 };
 
 class sstStonne {
